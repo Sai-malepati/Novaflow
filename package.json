@@ -5,24 +5,21 @@
   "scripts": {
     "prettify": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "lint": "eslint ./src",
-    "start": "react-scripts start",
+    "start": "webpack serve --mode development --open",
     "build": "webpack --mode production",
     "test": "jest"
   },
   "dependencies": {
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",
-    "@mui/icons-material": "^7.3.2",
+    "@mui/icons-material": "7.3.2",
     "@mui/material": "7.3.2",
-    "@mui/x-data-grid": "^8.11.3",
+    "@mui/x-data-grid": "7.3.2",
     "@reduxjs/toolkit": "^1.8.0",
-    "@types/react": "^18.3.24",
-    "@types/react-dom": "^18.3.7",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-redux": "^8.0.0",
     "react-router-dom": "^6.23.0",
-    "react-scripts": "^5.0.1",
     "recharts": "^3.2.1"
   },
   "devDependencies": {
