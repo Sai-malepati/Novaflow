@@ -12,7 +12,9 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": false,
+    "sourceMap": true,
   },
-  "include": ["src"]
+  "include": ["src/**/*"],       // <<< make sure src is included
+  "exclude": ["node_modules"]
 }
