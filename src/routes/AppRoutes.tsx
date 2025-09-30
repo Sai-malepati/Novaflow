@@ -3,7 +3,10 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import GetStarted from '../pages/get-started/GetStarted';
 import Dashboard from '../pages/dashboard/Dashboard';
 import Tmin from '../pages/Tmin';
-import TMinReview from 'pages/TMinReview';
+import TMinReview from '../pages/TMinReview';
+import TMinDocs from '../pages/TMinDocs';
+import TMinModel from '../pages/TMinModel';
+import TMinReport from '../pages/TMinReport';
 
 
  
@@ -13,8 +16,10 @@ const AppRoutes: React.FC = () => (
       <Route path="/" element={<GetStarted />} />
       <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/Tmin" element={<Tmin />} />
-        <Route path="/Tmin/:id" element={<Tmin />} />
-      <Route path="/Tmin/review" element={<TMinReview />} />
+      <Route path="/Tmin/review/:eslId?" element={<TMinReview />} />
+      <Route path="/tmin/docs" element={<TMinDocs />} /> {/* new page */}
+      <Route path="/tmin/model" element={<TMinModel />} />
+     < Route path="/tmin/report" element={<TMinReport />} />
 
      </Routes>
   </BrowserRouter>
