@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   Box,
   Card,
@@ -10,17 +10,17 @@ import {
   Button,
   Paper,
   Stack,
-} from "@mui/material";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
-import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+} from "@mui/material"
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
+import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined"
+import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined"
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 
 export type TMinStep = {
-  title: string;
-  state: "done" | "active" | "idle";
-  helper?: string;
-};
+  title: string
+  state: "done" | "active" | "idle"
+  helper?: string
+}
 
 export const DEFAULT_STEPS: TMinStep[] = [
   { title: "Gathering Details", helper: "Complete", state: "done" },
@@ -29,52 +29,46 @@ export const DEFAULT_STEPS: TMinStep[] = [
   { title: "3D Model Generating", state: "idle" },
   { title: "T-Min Review", state: "idle" },
   { title: "Generating Report", state: "idle" },
-];
+]
 
-type Tile = { icon: React.ReactNode; label: string; value: string };
+type Tile = { icon: React.ReactNode; label: string; value: string }
 
 type Props = {
-  eslId: string;
-
+  eslId: string
+  enableUploadDoc?: boolean
   // Status panel
-  sapId?: string;
-  assignedDate?: string;
-  timeRemaining?: string;
-  site?: string;
+  sapId?: string
+  assignedDate?: string
+  timeRemaining?: string
+  site?: string
 
   // Steps
-  steps?: TMinStep[];
+  steps?: TMinStep[]
 
   // Tiles
-  tiles?: Tile[];
-  tilesTitle?: string;
+  tiles?: Tile[]
+  tilesTitle?: string
 
   // Footer
-  fileLocationLabel?: string;
-  fileLocation?: string;
-  onBack?: () => void;
-  onNext?: () => void;
-  backLabel?: string;
-  nextLabel?: string;
-  rightExtra?: React.ReactNode;
+  fileLocationLabel?: string
+  fileLocation?: string
+  onBack?: () => void
+  onNext?: () => void
+  backLabel?: string
+  nextLabel?: string
+  rightExtra?: React.ReactNode
 
   /** Visibility flags (all default to true; safe for other pages) */
-  showFooter?: boolean;
-  showBackButton?: boolean;
-  showNextButton?: boolean;
-  showFileLocation?: boolean;
+  showFooter?: boolean
+  showBackButton?: boolean
+  showNextButton?: boolean
+  showFileLocation?: boolean
 
-  children?: React.ReactNode;
-};
+  children?: React.ReactNode
+}
 
 /* ---------- small local helpers ---------- */
-const Row = ({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) => (
+const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <Box
     sx={{
       display: "flex",
@@ -85,16 +79,12 @@ const Row = ({
       minHeight: 28,
     }}
   >
-    <Typography
-      sx={{ color: "text.secondary", fontSize: 13.5, fontWeight: 700 }}
-    >
+    <Typography sx={{ color: "text.secondary", fontSize: 13.5, fontWeight: 700 }}>
       {label}
     </Typography>
-    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-      {children}
-    </Box>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>{children}</Box>
   </Box>
-);
+)
 
 const StepNode = ({
   title,
@@ -102,17 +92,12 @@ const StepNode = ({
   index,
   helper,
 }: {
-  title: string;
-  state: TMinStep["state"];
-  index: number;
-  helper?: string;
+  title: string
+  state: TMinStep["state"]
+  index: number
+  helper?: string
 }) => {
-  const bg =
-    state === "done"
-      ? "success.main"
-      : state === "active"
-        ? "warning.main"
-        : "grey.400";
+  const bg = state === "done" ? "success.main" : state === "active" ? "warning.main" : "grey.400"
   return (
     <Box sx={{ flex: "0 1 110px", minWidth: 100, textAlign: "center" }}>
       <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5 }}>
@@ -134,10 +119,7 @@ const StepNode = ({
           ✓
         </Box>
       </Box>
-      <Typography
-        variant="caption"
-        sx={{ color: "text.secondary", mt: 0.5, display: "block" }}
-      >
+      <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
         Step {index}
       </Typography>
       {helper && (
@@ -153,12 +135,10 @@ const StepNode = ({
         </Typography>
       )}
     </Box>
-  );
-};
+  )
+}
 
-const Connector = () => (
-  <Box sx={{ flex: 1, height: 8, borderRadius: 4, bgcolor: "#D9D9D9" }} />
-);
+const Connector = () => <Box sx={{ flex: 1, height: 8, borderRadius: 4, bgcolor: "#D9D9D9" }} />
 
 const TileCard = ({ icon, label, value }: Tile) => (
   <Paper
@@ -174,14 +154,9 @@ const TileCard = ({ icon, label, value }: Tile) => (
       minHeight: 58,
     }}
   >
-    <Box sx={{ color: "error.main", display: "grid", placeItems: "center" }}>
-      {icon}
-    </Box>
+    <Box sx={{ color: "error.main", display: "grid", placeItems: "center" }}>{icon}</Box>
     <Box sx={{ minWidth: 0 }}>
-      <Typography
-        variant="caption"
-        sx={{ fontWeight: 800, color: "text.secondary" }}
-      >
+      <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary" }}>
         {label}
       </Typography>
       <Typography
@@ -201,7 +176,7 @@ const TileCard = ({ icon, label, value }: Tile) => (
       </Typography>
     </Box>
   </Paper>
-);
+)
 
 /* ---------- scaffold ---------- */
 const TMinScaffold: React.FC<Props> = ({
@@ -213,13 +188,13 @@ const TMinScaffold: React.FC<Props> = ({
   steps = DEFAULT_STEPS,
   tiles,
   tilesTitle = "Inspection Notification Details",
-
+  enableUploadDoc = false,
   fileLocationLabel = "Inspection Files Location:",
   fileLocation,
 
   onBack,
   onNext,
-  backLabel = "BACK TO LIST",
+  backLabel = "BACK",
   nextLabel = "Next",
   rightExtra,
 
@@ -231,19 +206,16 @@ const TMinScaffold: React.FC<Props> = ({
 
   children,
 }) => {
-  const [editing, setEditing] = useState(false);
-  const [sap, setSap] = useState(sapId);
-  const [draft, setDraft] = useState(sapId);
+  const [editing, setEditing] = useState(false)
+  const [sap, setSap] = useState(sapId)
+  const [draft, setDraft] = useState(sapId)
 
-  const handleBack = () => (onBack ? onBack() : window.history.back());
+  const handleBack = () => (onBack ? onBack() : window.history.back())
 
   return (
     <Box sx={{ p: 2.25, pt: "4.75rem" }}>
       {/* Header: STATUS + Steps */}
-      <Card
-        elevation={0}
-        sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}
-      >
+      <Card elevation={0} sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}>
         <CardContent sx={{ p: 1.5 }}>
           <Box sx={{ display: "flex", gap: 2, alignItems: "stretch" }}>
             {/* STATUS */}
@@ -264,10 +236,7 @@ const TMinScaffold: React.FC<Props> = ({
                   mb: 0.25,
                 }}
               >
-                <Typography
-                  variant="subtitle2"
-                  sx={{ fontWeight: 800, letterSpacing: 0.4 }}
-                >
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, letterSpacing: 0.4 }}>
                   STATUS
                 </Typography>
                 <Typography
@@ -281,14 +250,12 @@ const TMinScaffold: React.FC<Props> = ({
               <Row label="SAP ID :">
                 {!editing ? (
                   <>
-                    <Typography sx={{ fontSize: 13.5, fontWeight: 800 }}>
-                      {sap}
-                    </Typography>
+                    <Typography sx={{ fontSize: 13.5, fontWeight: 800 }}>{sap}</Typography>
                     <IconButton
                       size="small"
                       onClick={() => {
-                        setDraft(sap);
-                        setEditing(true);
+                        setDraft(sap)
+                        setEditing(true)
                       }}
                       sx={{
                         p: 0.25,
@@ -315,8 +282,8 @@ const TMinScaffold: React.FC<Props> = ({
                       color="success"
                       size="small"
                       onClick={() => {
-                        setSap(draft.trim() || sap);
-                        setEditing(false);
+                        setSap(draft.trim() || sap)
+                        setEditing(false)
                       }}
                       sx={{ p: 0.25 }}
                     >
@@ -357,12 +324,7 @@ const TMinScaffold: React.FC<Props> = ({
               >
                 {steps.map((s, i) => (
                   <React.Fragment key={s.title}>
-                    <StepNode
-                      title={s.title}
-                      state={s.state}
-                      index={i + 1}
-                      helper={s.helper}
-                    />
+                    <StepNode title={s.title} state={s.state} index={i + 1} helper={s.helper} />
                     {i < steps.length - 1 && <Connector />}
                   </React.Fragment>
                 ))}
@@ -374,15 +336,9 @@ const TMinScaffold: React.FC<Props> = ({
 
       {/* Optional Tiles */}
       {tiles && tiles.length > 0 && (
-        <Card
-          elevation={0}
-          sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}
-        >
+        <Card elevation={0} sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}>
           <CardContent sx={{ p: 2 }}>
-            <Typography
-              variant="subtitle2"
-              sx={{ color: "error.main", fontWeight: 700, mb: 1 }}
-            >
+            <Typography variant="subtitle2" sx={{ color: "error.main", fontWeight: 700, mb: 1 }}>
               {tilesTitle}
             </Typography>
             <Box
@@ -413,16 +369,10 @@ const TMinScaffold: React.FC<Props> = ({
         <Box sx={{ mt: 2 }}>
           {showFileLocation && fileLocation && (
             <Box>
-              <Typography
-                variant="caption"
-                sx={{ color: "error.main", fontWeight: 700 }}
-              >
+              <Typography variant="caption" sx={{ color: "error.main", fontWeight: 700 }}>
                 {fileLocationLabel}
               </Typography>
-              <Typography
-                variant="caption"
-                sx={{ ml: 1, color: "text.secondary" }}
-              >
+              <Typography variant="caption" sx={{ ml: 1, color: "text.secondary" }}>
                 {fileLocation}
               </Typography>
             </Box>
@@ -432,48 +382,58 @@ const TMinScaffold: React.FC<Props> = ({
             <Stack
               direction="row"
               alignItems="center"
-              justifyContent="space-between"
+              justifyContent={enableUploadDoc ? "space-between" : "flex-end"}
               sx={{ mt: 1.5 }}
             >
-              {showBackButton ? (
+              {enableUploadDoc ? (
                 <Button
-                  variant="outlined"
-                  color="error"
-                  startIcon={<ArrowBackIcon />}
-                  onClick={handleBack}
+                  variant="contained"
+                  color="primary"
                   sx={{ textTransform: "none" }}
                 >
-                  {backLabel}
+                  UPLOAD DOCUMENTS
                 </Button>
-              ) : (
-                <span />
-              )}
-
-              <Box>
-                {rightExtra}
-                {showNextButton && (
+              ) : null}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                {showBackButton ? (
                   <Button
-                    variant="contained"
-                    onClick={onNext}
-                    sx={{
-                      textTransform: "none",
-                      ml: rightExtra ? 1.5 : 0,
-                      px: 4,
-                      borderRadius: 2,
-                      bgcolor: "#FF4D4D",
-                      "&:hover": { bgcolor: "#E53935" },
-                    }}
+                    variant="outlined"
+                    color="error"
+                    onClick={handleBack}
+                    sx={{ textTransform: "none" }}
                   >
-                    {nextLabel}
+                    {backLabel}
                   </Button>
+                ) : (
+                  <span />
                 )}
+
+                <Box>
+                  {rightExtra}
+                  {showNextButton && (
+                    <Button
+                      variant="contained"
+                      onClick={onNext}
+                      sx={{
+                        textTransform: "none",
+                        ml: rightExtra ? 1.5 : 0,
+                        px: 4,
+                        borderRadius: 2,
+                        bgcolor: "#FF4D4D",
+                        "&:hover": { bgcolor: "#E53935" },
+                      }}
+                    >
+                      {nextLabel}
+                    </Button>
+                  )}
+                </Box>
               </Box>
             </Stack>
           )}
         </Box>
       )}
     </Box>
-  );
-};
+  )
+}
 
-export default TMinScaffold;
+export default TMinScaffold

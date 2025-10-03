@@ -173,6 +173,7 @@ const TMinDocs: React.FC = () => {
         steps={DOCS_STEPS}
         tiles={tiles}
         fileLocationLabel="Inspection Files Location:"
+        enableUploadDoc={true}
         fileLocation={fileLocation}
         onBack={() => navigate("/tmin")}
         onNext={() => navigate("/tmin-model", { state: { eslId } })} // <-- ✅ go to TMinModel

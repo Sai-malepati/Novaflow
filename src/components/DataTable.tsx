@@ -331,13 +331,15 @@ import {
   Paper,
   IconButton,
   TableSortLabel,
-} from '@mui/material';
+  Link as MUILink,
+} from "@mui/material"
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ArrowsIcon } from '../icons/ArrowsIcon';
 import { SortingOrderIcon } from '../icons/SortingOrderIcon';
+import { useNavigate } from 'react-router-dom';
 
 type Column = {
   id: string;
@@ -355,6 +357,8 @@ interface DataTableProps {
   title?: string;
   columns: Column[];
   rows: Row[];
+  sourceLink?: string;
+  navigateTo?: string;
   showActions?: {
     view?: boolean;
     edit?: boolean;
@@ -371,6 +375,8 @@ const DataTable: React.FC<DataTableProps> = ({
   title,
   columns,
   rows,
+  sourceLink,
+  navigateTo = '',
   showActions = { view: false, edit: false, delete: false },
   onView,
   onEdit,
@@ -383,6 +389,7 @@ const DataTable: React.FC<DataTableProps> = ({
   const [search, setSearch] = useState('');
   const [orderBy, setOrderBy] = useState<string>('');
   const [order, setOrder] = useState<Order>('asc');
+  const navigate = useNavigate();
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -407,9 +414,9 @@ const DataTable: React.FC<DataTableProps> = ({
     if (aValue > bValue) return order === 'asc' ? 1 : -1;
     return 0;
   });
-
-  const filteredRows = sortedRows.filter((row) =>
-    Object.values(row).join(' ').toLowerCase().includes(search.toLowerCase()),
+  const filteredRows = sortedRows.filter((row) =>{
+    return Object.values(row).join(' ').toLowerCase().includes(search.toLowerCase());
+  }
   );
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -537,6 +544,19 @@ const DataTable: React.FC<DataTableProps> = ({
                   <TableRow key={i}>
                     {columns.map((column) => {
                       const value = row[column.id];
+                      if (sourceLink && column.id === sourceLink) {
+                        return (
+                          <TableCell key={column.id}>
+                            <MUILink
+                              sx={{ cursor: "pointer", color: "primary.main", fontWeight: 600 }}
+                              onClick={() => navigate(navigateTo, { state: { eslId: value } })}
+                            >
+                              {value}
+                            </MUILink>
+                          </TableCell>
+                        )
+                      }
+
                       if (column.id === 'Severity') {
                         return (
                           <TableCell

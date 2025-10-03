@@ -26,16 +26,16 @@ type Column = {
 };
 
 const COLUMNS: Column[] = [
-  { id: 'ESLID', label: 'ESL ID', sortable: true, minWidth: 120 },
-  { id: 'Severity', label: 'Severity' },
-  { id: 'AssignedDate', label: 'Assigned Date' },
-  { id: 'BusinessTeam', label: 'Business Team' },
-  { id: 'DueInDays', label: 'Due In Days' },
-  { id: 'Unit', label: 'Unit' },
-  { id: 'EquipmentType', label: 'Equipment Type' },
-  { id: 'Status', label: 'Status' },
-  { id: 'ProcessDescription', label: 'Process Description', minWidth: 260 },
-];
+  { id: "ESLID", label: "ESL ID", sortable: true, minWidth: 120 },
+  { id: "Severity", label: "Severity" },
+  { id: "AssignedDate", label: "Assigned Date" },
+  { id: "BusinessTeam", label: "Business Team", sortable: true },
+  { id: "DueInDays", label: "Due In Days" },
+  { id: "Unit", label: "Unit" },
+  { id: "EquipmentType", label: "Equipment Type" },
+  { id: "Status", label: "Status" },
+  { id: "ProcessDescription", label: "Process Description", minWidth: 260 },
+]
 
 /* ✅ CHANGED: explicitly type ROWS as Row[] */
 const ROWS: Row[] = [
@@ -107,11 +107,11 @@ const TMin: React.FC = () => {
 
   return (
     <MainLayout>
-      <Box sx={{ p: 3, pt: '5rem' }}>
+      <Box sx={{ p: 3, pt: "5rem" }}>
         <UserInfoHeader />
 
         {taskId && (
-          <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, color: "text.secondary" }}>
             Showing details (clicked) for ESL ID: <strong>{taskId}</strong>
           </Typography>
         )}
@@ -121,14 +121,16 @@ const TMin: React.FC = () => {
         <DataTable
           title="END OF SERVICE LIFE MANAGEMENT"
           columns={COLUMNS}
-          rows={enhancedRows as any}
+          rows={ROWS}
           isSearchable
           isPagination
           showActions={{ view: true }}
+          sourceLink='ESLID'
+          navigateTo='/tmin-review'
         />
       </Box>
     </MainLayout>
-  );
+  )
 };
 
 export default TMin;
