@@ -15,7 +15,6 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Stepper } from "./StepperProgressBar";
 
 export type TMinStep = {
   title: string;
@@ -35,39 +34,38 @@ export const DEFAULT_STEPS: TMinStep[] = [
 type Tile = { icon: React.ReactNode; label: string; value: string };
 
 type Props = {
-  eslId: string
+  eslId: string;
 
   // Status panel
-  sapId?: string
-  assignedDate?: string
-  timeRemaining?: string
-  site?: string
+  sapId?: string;
+  assignedDate?: string;
+  timeRemaining?: string;
+  site?: string;
 
   // Steps
-  steps?: TMinStep[]
-  activeStep?: number
+  steps?: TMinStep[];
 
   // Tiles
-  tiles?: Tile[]
-  tilesTitle?: string
+  tiles?: Tile[];
+  tilesTitle?: string;
 
   // Footer
-  fileLocationLabel?: string
-  fileLocation?: string
-  onBack?: () => void
-  onNext?: () => void
-  backLabel?: string
-  nextLabel?: string
-  rightExtra?: React.ReactNode
+  fileLocationLabel?: string;
+  fileLocation?: string;
+  onBack?: () => void;
+  onNext?: () => void;
+  backLabel?: string;
+  nextLabel?: string;
+  rightExtra?: React.ReactNode;
 
   /** Visibility flags (all default to true; safe for other pages) */
-  showFooter?: boolean
-  showBackButton?: boolean
-  showNextButton?: boolean
-  showFileLocation?: boolean
+  showFooter?: boolean;
+  showBackButton?: boolean;
+  showNextButton?: boolean;
+  showFileLocation?: boolean;
 
-  children?: React.ReactNode
-}
+  children?: React.ReactNode;
+};
 
 /* ---------- small local helpers ---------- */
 const Row = ({
@@ -212,7 +210,7 @@ const TMinScaffold: React.FC<Props> = ({
   assignedDate = "—",
   timeRemaining = "—",
   site = "—",
-  activeStep = 1,
+  steps = DEFAULT_STEPS,
   tiles,
   tilesTitle = "Inspection Notification Details",
 
@@ -233,16 +231,19 @@ const TMinScaffold: React.FC<Props> = ({
 
   children,
 }) => {
-  const [editing, setEditing] = useState(false)
-  const [sap, setSap] = useState(sapId)
-  const [draft, setDraft] = useState(sapId)
+  const [editing, setEditing] = useState(false);
+  const [sap, setSap] = useState(sapId);
+  const [draft, setDraft] = useState(sapId);
 
-  const handleBack = () => (onBack ? onBack() : window.history.back())
+  const handleBack = () => (onBack ? onBack() : window.history.back());
 
   return (
     <Box sx={{ p: 2.25, pt: "4.75rem" }}>
       {/* Header: STATUS + Steps */}
-      <Card elevation={0} sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}>
+      <Card
+        elevation={0}
+        sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}
+      >
         <CardContent sx={{ p: 1.5 }}>
           <Box sx={{ display: "flex", gap: 2, alignItems: "stretch" }}>
             {/* STATUS */}
@@ -263,7 +264,10 @@ const TMinScaffold: React.FC<Props> = ({
                   mb: 0.25,
                 }}
               >
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, letterSpacing: 0.4 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ fontWeight: 800, letterSpacing: 0.4 }}
+                >
                   STATUS
                 </Typography>
                 <Typography
@@ -277,12 +281,14 @@ const TMinScaffold: React.FC<Props> = ({
               <Row label="SAP ID :">
                 {!editing ? (
                   <>
-                    <Typography sx={{ fontSize: 13.5, fontWeight: 800 }}>{sap}</Typography>
+                    <Typography sx={{ fontSize: 13.5, fontWeight: 800 }}>
+                      {sap}
+                    </Typography>
                     <IconButton
                       size="small"
                       onClick={() => {
-                        setDraft(sap)
-                        setEditing(true)
+                        setDraft(sap);
+                        setEditing(true);
                       }}
                       sx={{
                         p: 0.25,
@@ -309,8 +315,8 @@ const TMinScaffold: React.FC<Props> = ({
                       color="success"
                       size="small"
                       onClick={() => {
-                        setSap(draft.trim() || sap)
-                        setEditing(false)
+                        setSap(draft.trim() || sap);
+                        setEditing(false);
                       }}
                       sx={{ p: 0.25 }}
                     >
@@ -339,15 +345,7 @@ const TMinScaffold: React.FC<Props> = ({
             </Box>
 
             {/* Steps rail */}
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-evenly",
-                px: 1,
-                py: 0.25,
-                width: "100%",
-              }}
-            >
+            <Box sx={{ flex: 1, px: 1, py: 0.25, minWidth: 0 }}>
               <Box
                 sx={{
                   display: "flex",
@@ -357,7 +355,17 @@ const TMinScaffold: React.FC<Props> = ({
                   pb: 0.5,
                 }}
               >
-                <Stepper activeStep={activeStep} />
+                {steps.map((s, i) => (
+                  <React.Fragment key={s.title}>
+                    <StepNode
+                      title={s.title}
+                      state={s.state}
+                      index={i + 1}
+                      helper={s.helper}
+                    />
+                    {i < steps.length - 1 && <Connector />}
+                  </React.Fragment>
+                ))}
               </Box>
             </Box>
           </Box>
@@ -366,9 +374,15 @@ const TMinScaffold: React.FC<Props> = ({
 
       {/* Optional Tiles */}
       {tiles && tiles.length > 0 && (
-        <Card elevation={0} sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}>
+        <Card
+          elevation={0}
+          sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}
+        >
           <CardContent sx={{ p: 2 }}>
-            <Typography variant="subtitle2" sx={{ color: "error.main", fontWeight: 700, mb: 1 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ color: "error.main", fontWeight: 700, mb: 1 }}
+            >
               {tilesTitle}
             </Typography>
             <Box
@@ -399,10 +413,16 @@ const TMinScaffold: React.FC<Props> = ({
         <Box sx={{ mt: 2 }}>
           {showFileLocation && fileLocation && (
             <Box>
-              <Typography variant="caption" sx={{ color: "error.main", fontWeight: 700 }}>
+              <Typography
+                variant="caption"
+                sx={{ color: "error.main", fontWeight: 700 }}
+              >
                 {fileLocationLabel}
               </Typography>
-              <Typography variant="caption" sx={{ ml: 1, color: "text.secondary" }}>
+              <Typography
+                variant="caption"
+                sx={{ ml: 1, color: "text.secondary" }}
+              >
                 {fileLocation}
               </Typography>
             </Box>
@@ -453,7 +473,7 @@ const TMinScaffold: React.FC<Props> = ({
         </Box>
       )}
     </Box>
-  )
-}
+  );
+};
 
 export default TMinScaffold;
