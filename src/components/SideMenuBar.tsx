@@ -25,7 +25,7 @@ const Sidebar: React.FC = () => {
     {
       text: "T-Min",
       icon: <AssignmentIcon />,
-      navigateTo: ["/tmin", "/tmin/review"],
+      navigateTo: ["/tmin", "/tmin-review", "/tmin-model", "/tmin-docs", "/tmin-report"],
       defaultLink: "/tmin",
     },
     { text: "Trainings", icon: <ReportIcon /> },

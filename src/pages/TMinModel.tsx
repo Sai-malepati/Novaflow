@@ -171,7 +171,7 @@ const TMinModel: React.FC = () => {
 
   /* generate report navigation */
   const handleGenerateReport = React.useCallback(() => {
-    navigate("/tmin/report", { state: { eslId } });
+    navigate("/tmin-report", { state: { eslId } });
   }, [navigate, eslId]);
 
   /* scaffold tiles */

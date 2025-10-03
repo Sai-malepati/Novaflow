@@ -98,7 +98,7 @@ const TMin: React.FC = () => {
     ESLID: (
       <MUILink
         sx={{ cursor: 'pointer', color: 'primary.main', fontWeight: 600 }}
-        onClick={() => navigate('/tmin/review', { state: { eslId: r.ESLID } })}
+        onClick={() => navigate('/tmin-review', { state: { eslId: r.ESLID } })}
       >
         {r.ESLID}
       </MUILink>

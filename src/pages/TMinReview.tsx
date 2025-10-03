@@ -176,7 +176,7 @@ const TMinReview: React.FC = () => {
         fileLocation="K:\BTAREA\BTES\FIXEDEQUIP\Inspection\FS\CLEU\CLEUs\Inspection Planner’s Folder\EOR Folder CLE3L3-T0302"
         onBack={() => navigate("/tmin")}
         // onNext={() => console.log('Next')}
-        onNext={() => navigate("/tmin/docs", { state: { eslId } })}
+        onNext={() => navigate("/tmin-docs", { state: { eslId } })}
       >
         {/* ====== middle content (unchanged) ====== */}
         <Card elevation={0} sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}>

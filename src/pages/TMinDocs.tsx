@@ -175,7 +175,7 @@ const TMinDocs: React.FC = () => {
         fileLocationLabel="Inspection Files Location:"
         fileLocation={fileLocation}
         onBack={() => navigate("/tmin")}
-        onNext={() => navigate("/tmin/model", { state: { eslId } })} // <-- ✅ go to TMinModel
+        onNext={() => navigate("/tmin-model", { state: { eslId } })} // <-- ✅ go to TMinModel
         rightExtra={
           <Button
             variant="outlined"
