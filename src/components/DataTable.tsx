@@ -451,7 +451,7 @@ const DataTable: React.FC<DataTableProps> = ({
         px={1}
         py={1}
       >
-        <Typography variant="subtitle2" fontSize='16px' color='#5A5A5A' fontWeight={600}>
+        <Typography variant="subtitle2" fontSize='14px' color='#5A5A5A' fontWeight={600}>
           {title}
         </Typography>
         {isSearchable ? (

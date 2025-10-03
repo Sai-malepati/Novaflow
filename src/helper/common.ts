@@ -14,5 +14,4 @@ export const status = [
   { label: 'Completed Tasks', value: 27, color: '#4caf50' },
   { label: 'Tasks Rejected', value: 27, color: '#f44336' },
   { label: 'Tasks In Progress', value: 27, color: '#ff9800' },
-  { label: 'New Tasks', value: 27, color: '#2196f3' },
 ];

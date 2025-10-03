@@ -343,13 +343,12 @@ import {
 } from 'recharts';
 import MainLayout from '../../components/MainLayout';
 import { UserInfoHeader } from '.././user-info-header/UserInfoHeader';
-import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
-import ScienceOutlinedIcon from '@mui/icons-material/ScienceOutlined';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStatsOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import ExtensionOutlinedIcon from '@mui/icons-material/ExtensionOutlined';
 import { useNavigate } from 'react-router-dom'; // ✅ NEW
+import { ProbabilityIcon, CorrosionIcon, DeviationIcon, InspectionIcon, ToolIcon } from "icons"
 
 // --- Types
 type BaseRow = {
@@ -368,7 +367,7 @@ type Column = {
 };
 
 // --- Styles
-const tileCardSx = { borderRadius: 2, border: '1px solid #eee', background: '#fff' };
+const tileCardSx = { borderRadius: 2, border: 'none', backgroundColor: 'transparent', boxShadow: 'none', overflow: 'visible' };
 const tileContentSx = {
   p: 2,
   display: 'flex',
@@ -377,10 +376,20 @@ const tileContentSx = {
   gap: 1,
   bgcolor: '#fff',
   borderRadius: 2,
-  minHeight: 110,
+  minHeight: 121,
   textAlign: 'center' as const,
+  boxShadow: '0px 3px 6px #00000029',
+  justifyContent: 'space-between'
 };
-const linkSx = { color: 'primary.main', textDecoration: 'none', fontSize: 14 };
+const linkSx = {
+  color: "#6D6E71",
+  textDecorationColor: "#6D6E71",
+  fontSize: 14,
+  width: "100%",
+  display: "block",
+  padding: "4px 0",
+  "&:hover": { textDecorationColor: "#28A5DD", color: "#28A5DD" },
+}
 
 // --- Table columns
 const COLUMNS: Column[] = [
@@ -447,13 +456,13 @@ const REPORT_LINKS = [
 ];
 
 const TOOLS = [
-  { label: 'Probability of Failure', icon: <InsightsOutlinedIcon fontSize="large" /> },
-  { label: 'Corrosion Rate Calculator', icon: <ScienceOutlinedIcon fontSize="large" /> },
-  { label: 'Standard Deviation Generator', icon: <QueryStatsOutlinedIcon fontSize="large" /> },
-  { label: 'Inspection Report Scrapper', icon: <DescriptionOutlinedIcon fontSize="large" /> },
-  { label: 'Tool 5', icon: <BuildOutlinedIcon fontSize="large" /> },
-  { label: 'Tool 6', icon: <ExtensionOutlinedIcon fontSize="large" /> },
-];
+  { label: "Probability of Failure", icon: <ProbabilityIcon /> },
+  { label: "Corrosion Rate Calculator", icon: <CorrosionIcon /> },
+  { label: "Standard Deviation Generator", icon: <DeviationIcon /> },
+  { label: "Inspection Report Scrapper", icon: <InspectionIcon /> },
+  { label: "Tool 5", icon: <ToolIcon /> },
+  { label: "Tool 6", icon: <ToolIcon /> },
+]
 
 const ReportCard = memo(function ReportCard({ title }: { title: 'Weekly Report' | 'Monthly Report' }) {
   return (
@@ -463,15 +472,15 @@ const ReportCard = memo(function ReportCard({ title }: { title: 'Weekly Report' 
           {title}
         </Typography>
         <Divider sx={{ mb: 1.5 }} />
-        <Box component="ul" sx={{ m: 0, pl: 2.5, '& li + li': { mt: 0.5 } }}>
+        {/* <Box component="ul" sx={{ m: 0, pl: 2.5, '& li + li': { mt: 0.5 } }}> */}
           {REPORT_LINKS.map((text) => (
-            <li key={text}>
+            // <li key={text}>
               <MUILink href="#" sx={linkSx}>
                 {text}
               </MUILink>
-            </li>
+            // </li>
           ))}
-        </Box>
+        {/* </Box> */}
       </CardContent>
     </Card>
   );
@@ -495,7 +504,7 @@ const ToolsGrid = memo(function ToolsGrid() {
           {TOOLS.map((t) => (
             <Card key={t.label} elevation={1} sx={tileCardSx}>
               <CardContent sx={tileContentSx}>
-                <Box sx={{ color: '#000' }}>{t.icon}</Box>
+                <Box sx={{ color: '#000', border: '1px solid #6D6E71', borderRadius: 1, p: 1 }}>{t.icon}</Box>
                 <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2, color: 'error.main', textAlign: 'center' }}>
                   {t.label}
                 </Typography>
@@ -533,7 +542,7 @@ const Dashboard: React.FC = () => {
           sx={{
             mb: 2,
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', lg: '1fr 800px' },
+            gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
             gap: 2,
             alignItems: 'start',
           }}

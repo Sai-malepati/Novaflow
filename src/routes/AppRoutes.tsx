@@ -15,14 +15,13 @@ const AppRoutes: React.FC = () => (
     <Routes>
       <Route path="/" element={<GetStarted />} />
       <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/Tmin" element={<Tmin />} />
-      <Route path="/Tmin/review/:eslId?" element={<TMinReview />} />
+      <Route path="/tmin" element={<Tmin />} />
+      <Route path="/tmin/review" element={<TMinReview />} />
       <Route path="/tmin/docs" element={<TMinDocs />} /> {/* new page */}
       <Route path="/tmin/model" element={<TMinModel />} />
-     < Route path="/tmin/report" element={<TMinReport />} />
-
-     </Routes>
+      <Route path="/tmin/report" element={<TMinReport />} />
+    </Routes>
   </BrowserRouter>
-);
+)
  
 export default AppRoutes;

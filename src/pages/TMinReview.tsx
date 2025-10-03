@@ -51,14 +51,12 @@ const HollowCard = ({
         {action}
       </Stack>
     </Box>
-    <CardContent sx={{ minHeight: minH, p: 2.25 }}>
+    <CardContent sx={{ minHeight: minH, padding: 0 }}>
       {children ?? (
         <Box
           sx={{
             height: minH - 40,
-            border: '1px dashed #DBDBDB',
             borderRadius: 1,
-            bgcolor: '#FAFAFA',
           }}
         />
       )}
@@ -165,60 +163,42 @@ const TMinReview: React.FC = () => {
         assignedDate="30/07/2025"
         timeRemaining="2 Days"
         site="Baytown"
-        steps={steps}
+        activeStep={1}
         fileLocationLabel="Inspection Files Location:"
         fileLocation="K:\BTAREA\BTES\FIXEDEQUIP\Inspection\FS\CLEU\CLEUs\Inspection Planner’s Folder\EOR Folder CLE3L3-T0302"
-        onBack={() => navigate('/tmin')}
+        onBack={() => navigate("/tmin")}
         // onNext={() => console.log('Next')}
-        onNext={() => navigate('/tmin/docs', { state: { eslId } })}
+        onNext={() => navigate("/tmin/docs", { state: { eslId } })}
       >
         {/* ====== middle content (unchanged) ====== */}
-        <Card
-          elevation={0}
-          sx={{ borderRadius: 2, border: '1px solid #ededed', mb: 2 }}
-        >
-          <CardContent sx={{ p: 2 }}>
-            <Typography
-              variant="subtitle2"
-              sx={{ color: 'error.main', fontWeight: 700, mb: 1 }}
-            >
+        <Card elevation={0} sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}>
+          <CardContent>
+            <Typography variant="subtitle2" sx={{ color: "error.main", fontWeight: 700, mb: 1 }}>
               Inspection Notification Details
             </Typography>
 
             <Box
               sx={{
-                display: 'grid',
+                display: "grid",
                 gridTemplateColumns: {
-                  xs: '1fr',
-                  sm: 'repeat(2,1fr)',
-                  md: 'repeat(3,1fr)',
-                  lg: 'repeat(6,1fr)',
+                  xs: "1fr",
+                  sm: "repeat(2,1fr)",
+                  md: "repeat(3,1fr)",
+                  lg: "repeat(6,1fr)",
                 },
                 gap: 1.25,
               }}
             >
               {/* Replace with your real tiles as needed */}
-              <InfoTile
-                icon={<span>🏷️</span>}
-                label="Equipment Tag"
-                value="CLE3L3-T0302"
-              />
-              <InfoTile
-                icon={<span>🛠️</span>}
-                label="Equipment Type"
-                value="Pressure Vessel"
-              />
+              <InfoTile icon={<span>🏷️</span>} label="Equipment Tag" value="CLE3L3-T0302" />
+              <InfoTile icon={<span>🛠️</span>} label="Equipment Type" value="Pressure Vessel" />
               <InfoTile
                 icon={<span>📈</span>}
                 label="Thickness Status"
                 value="Vessel - Above IDM RL"
               />
               <InfoTile icon={<span>👥</span>} label="Business Team" value="CLEUS" />
-              <InfoTile
-                icon={<span>🪪</span>}
-                label="Site Inspector"
-                value="Akshay Mahto"
-              />
+              <InfoTile icon={<span>🪪</span>} label="Site Inspector" value="Akshay Mahto" />
               <InfoTile icon={<span>🏭</span>} label="Unit" value="CLEU3" />
             </Box>
           </CardContent>
@@ -226,8 +206,8 @@ const TMinReview: React.FC = () => {
 
         <Box
           sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: 'repeat(4, 1fr)' },
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr", lg: "repeat(4, 1fr)" },
             gap: 1.5,
           }}
         >
@@ -246,7 +226,7 @@ const TMinReview: React.FC = () => {
             title="MSP Engineer Note Pad"
             minH={280}
             action={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 <Tooltip title="Save To Record (download)">
                   <span>
                     <IconButton
@@ -276,12 +256,12 @@ const TMinReview: React.FC = () => {
           >
             <Box
               sx={{
-                position: 'relative',
+                position: "relative",
                 height: 240,
-                border: '1px dashed #DBDBDB',
+                border: "1px dashed #DBDBDB",
                 borderRadius: 1,
                 background:
-                  'repeating-linear-gradient(white, white 28px, #ECECEC 29px, #ECECEC 30px)',
+                  "repeating-linear-gradient(white, white 28px, #ECECEC 29px, #ECECEC 30px)",
               }}
               onMouseEnter={() => setHoveringNotePad(true)}
               onMouseLeave={() => setHoveringNotePad(false)}
@@ -289,14 +269,14 @@ const TMinReview: React.FC = () => {
               {hoveringNotePad && !note.trim() && (
                 <Typography
                   sx={{
-                    position: 'absolute',
+                    position: "absolute",
                     inset: 0,
-                    display: 'grid',
-                    placeItems: 'center',
-                    color: 'text.disabled',
-                    fontStyle: 'italic',
-                    pointerEvents: 'none',
-                    userSelect: 'none',
+                    display: "grid",
+                    placeItems: "center",
+                    color: "text.disabled",
+                    fontStyle: "italic",
+                    pointerEvents: "none",
+                    userSelect: "none",
                   }}
                 >
                   Please enter the text
@@ -308,18 +288,18 @@ const TMinReview: React.FC = () => {
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Write your note here..."
                 style={{
-                  width: '100%',
-                  height: '100%',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  background: 'transparent',
-                  padding: '8px',
-                  fontFamily: 'inherit',
-                  fontSize: '14px',
-                  lineHeight: '28px',
-                  color: '#333',
-                  position: 'relative',
+                  width: "100%",
+                  height: "100%",
+                  border: "none",
+                  outline: "none",
+                  resize: "none",
+                  background: "transparent",
+                  padding: "8px",
+                  fontFamily: "inherit",
+                  fontSize: "14px",
+                  lineHeight: "28px",
+                  color: "#333",
+                  position: "relative",
                   zIndex: 1,
                 }}
                 aria-label="MSP Engineer notes"
@@ -332,7 +312,7 @@ const TMinReview: React.FC = () => {
           open={savedOpen}
           autoHideDuration={1800}
           onClose={() => setSavedOpen(false)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         >
           <Alert
             onClose={() => setSavedOpen(false)}
@@ -345,7 +325,7 @@ const TMinReview: React.FC = () => {
         </Snackbar>
       </TMinScaffold>
     </MainLayout>
-  );
+  )
 };
 
 export default TMinReview;

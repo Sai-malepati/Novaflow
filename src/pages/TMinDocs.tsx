@@ -170,7 +170,7 @@ const TMinDocs: React.FC = () => {
         assignedDate="30/07/2025"
         timeRemaining="2 Days"
         site="Baytown"
-        steps={DOCS_STEPS}
+        activeStep={2}
         tiles={tiles}
         fileLocationLabel="Inspection Files Location:"
         fileLocation={fileLocation}
@@ -188,10 +188,7 @@ const TMinDocs: React.FC = () => {
           </Button>
         }
       >
-        <Typography
-          variant="subtitle2"
-          sx={{ color: "text.secondary", fontWeight: 700, mb: 1 }}
-        >
+        <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: 700, mb: 1 }}>
           Documents Collected
         </Typography>
 
@@ -215,33 +212,22 @@ const TMinDocs: React.FC = () => {
                   </TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>
                     Tools{" "}
-                    <Typography
-                      component="span"
-                      sx={{ color: "text.disabled" }}
-                    >
+                    <Typography component="span" sx={{ color: "text.disabled" }}>
                       ↕
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>
-                    Document Quality
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, textAlign: "center" }}>
-                    Actions
-                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Document Quality</TableCell>
+                  <TableCell sx={{ fontWeight: 700, textAlign: "center" }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
                 {ROWS.map((r) => {
-                  const checked = selectedIds.includes(r.id);
+                  const checked = selectedIds.includes(r.id)
                   return (
                     <TableRow key={r.id} hover>
                       <TableCell width={50}>
-                        <Checkbox
-                          size="small"
-                          checked={checked}
-                          onChange={() => toggleOne(r.id)}
-                        />
+                        <Checkbox size="small" checked={checked} onChange={() => toggleOne(r.id)} />
                       </TableCell>
 
                       <TableCell>{r.name}</TableCell>
@@ -254,11 +240,7 @@ const TMinDocs: React.FC = () => {
 
                       <TableCell>
                         <Typography
-                          color={
-                            r.available === "Yes"
-                              ? "success.main"
-                              : "error.main"
-                          }
+                          color={r.available === "Yes" ? "success.main" : "error.main"}
                           fontWeight={600}
                         >
                           {r.available}
@@ -294,7 +276,7 @@ const TMinDocs: React.FC = () => {
                         </IconButton>
                       </TableCell>
                     </TableRow>
-                  );
+                  )
                 })}
               </TableBody>
             </Table>
@@ -312,12 +294,12 @@ const TMinDocs: React.FC = () => {
             eslId,
             ...payload,
             selectedDocs,
-          });
-          setMailOpen(false);
+          })
+          setMailOpen(false)
         }}
       />
     </MainLayout>
-  );
+  )
 };
 
 export default TMinDocs;
