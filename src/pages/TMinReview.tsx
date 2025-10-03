@@ -19,6 +19,14 @@ import NoteAddOutlinedIcon from '@mui/icons-material/NoteAddOutlined';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 
+const steps: TMinStep[] = [
+  { title: "Gathering Details", helper: "Complete", state: "done" },
+  { title: "Gathering Documents", helper: "In Progress", state: "active" },
+  { title: "Data Collection (OCR)", state: "idle" },
+  { title: "3D Model Generating", state: "idle" },
+  { title: "T-Min Review", state: "idle" },
+  { title: "Generating Report", state: "idle" },
+];
 /* ---- small local cards reused on this page ---- */
 const HollowCard = ({
   title,
@@ -163,7 +171,7 @@ const TMinReview: React.FC = () => {
         assignedDate="30/07/2025"
         timeRemaining="2 Days"
         site="Baytown"
-        activeStep={1}
+        steps={steps}
         fileLocationLabel="Inspection Files Location:"
         fileLocation="K:\BTAREA\BTES\FIXEDEQUIP\Inspection\FS\CLEU\CLEUs\Inspection Planner’s Folder\EOR Folder CLE3L3-T0302"
         onBack={() => navigate("/tmin")}

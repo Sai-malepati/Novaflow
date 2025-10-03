@@ -170,7 +170,7 @@ const TMinDocs: React.FC = () => {
         assignedDate="30/07/2025"
         timeRemaining="2 Days"
         site="Baytown"
-        activeStep={2}
+        steps={DOCS_STEPS}
         tiles={tiles}
         fileLocationLabel="Inspection Files Location:"
         fileLocation={fileLocation}
