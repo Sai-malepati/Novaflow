@@ -22,6 +22,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import MainLayout from "../components/MainLayout";
 import TMinScaffold, { TMinStep } from "../components/TMinScaffold";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ReportCard } from "./dashboard/Dashboard";
 
 /* --------------------------------- data --------------------------------- */
 
@@ -33,6 +34,17 @@ const STEPS: TMinStep[] = [
   { title: "T-Min Review", state: "idle" },
   { title: "Generating Report", state: "idle" },
 ];
+
+const REPORT_LINKS = [
+  "Manufacturer Record Book (MRB)",
+  "General arrangement/fabrication drawing",
+  "Datasheet",
+  "U1A form",
+  "Nameplate details",
+  "Piping and Instrumentation Diagram",
+  "Equipment strategy",
+  "TML Sketch",
+]
 
 type Row = { id: string; label: string; param: string; comment: string };
 type LocRow = { id: string; label: string; param: string; comment: string };
@@ -171,7 +183,7 @@ const TMinModel: React.FC = () => {
 
   /* generate report navigation */
   const handleGenerateReport = React.useCallback(() => {
-    navigate("/tmin/report", { state: { eslId } });
+    navigate("/tmin-report", { state: { eslId } });
   }, [navigate, eslId]);
 
   /* scaffold tiles */
@@ -213,20 +225,10 @@ const TMinModel: React.FC = () => {
         showFooter={false}
       >
         {/* banner – retirement thickness value when calculated */}
-        {hasThickness && !approved && (
-          <Box sx={{ mt: 1, display: "flex", justifyContent: "flex-end" }}>
-            <Chip
-              label="Retirement Thickness for IDM/EOR Evaluation : 1.33 mm"
-              color="success"
-              sx={{ fontWeight: 700 }}
-            />
-          </Box>
-        )}
+
         {/* status Approved badge */}
         {approved && (
-          <Box
-            sx={{ mt: 1, display: "flex", justifyContent: "flex-end", gap: 1 }}
-          >
+          <Box sx={{ mt: 1, display: "flex", justifyContent: "flex-end", gap: 1 }}>
             <Typography sx={{ fontWeight: 700, mr: 1 }}>Status</Typography>
             <Chip label="Approved" color="success" variant="filled" />
           </Box>
@@ -239,9 +241,7 @@ const TMinModel: React.FC = () => {
           <Table>
             <TableHead>
               <TableRow sx={{ bgcolor: "#FFECEC" }}>
-                <TableCell sx={{ fontWeight: 700 }}>
-                  Design Information
-                </TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Design Information</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Parameter&apos;s</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Comments</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Action</TableCell>
@@ -249,13 +249,11 @@ const TMinModel: React.FC = () => {
             </TableHead>
             <TableBody>
               {designRows.map((r) => {
-                const editing = editingId === r.id;
+                const editing = editingId === r.id
                 return (
                   <TableRow key={r.id}>
                     <TableCell>{r.label}</TableCell>
-                    <TableCell sx={{ color: "text.secondary" }}>
-                      {r.param}
-                    </TableCell>
+                    <TableCell sx={{ color: "text.secondary" }}>{r.param}</TableCell>
                     <TableCell sx={{ minWidth: 420 }}>
                       {editing ? (
                         <TextField
@@ -282,15 +280,12 @@ const TMinModel: React.FC = () => {
                       )}
                     </TableCell>
                     <TableCell width={52}>
-                      <IconButton
-                        size="small"
-                        onClick={() => startEdit(r.id, r.comment)}
-                      >
+                      <IconButton size="small" onClick={() => startEdit(r.id, r.comment)}>
                         <EditOutlinedIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
                   </TableRow>
-                );
+                )
               })}
             </TableBody>
           </Table>
@@ -310,13 +305,11 @@ const TMinModel: React.FC = () => {
             </TableHead>
             <TableBody>
               {locationRows.map((r) => {
-                const editing = editingId === r.id;
+                const editing = editingId === r.id
                 return (
                   <TableRow key={r.id}>
                     <TableCell>{r.label}</TableCell>
-                    <TableCell sx={{ color: "text.secondary" }}>
-                      {r.param}
-                    </TableCell>
+                    <TableCell sx={{ color: "text.secondary" }}>{r.param}</TableCell>
                     <TableCell sx={{ minWidth: 420 }}>
                       {editing ? (
                         <TextField
@@ -343,96 +336,139 @@ const TMinModel: React.FC = () => {
                       )}
                     </TableCell>
                     <TableCell width={52}>
-                      <IconButton
-                        size="small"
-                        onClick={() => startEdit(r.id, r.comment)}
-                      >
+                      <IconButton size="small" onClick={() => startEdit(r.id, r.comment)}>
                         <EditOutlinedIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
                   </TableRow>
-                );
+                )
               })}
             </TableBody>
           </Table>
-        </Paper>
-
-        {/* ===== MSP Engineer comments / Assumptions ===== */}
-        <Box sx={{ mt: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 0.75 }}>
-            <Typography sx={{ fontWeight: 700, mr: 1 }}>
-              MSP Engineer comments
-            </Typography>
-            <IconButton size="small">
-              <EditOutlinedIcon fontSize="small" />
-            </IconButton>
+          <Box sx={{ display: "flex", mt: 2, flexDirection: "column", p: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                mb: 0.75,
+                justifyContent: "space-between",
+              }}
+            >
+              <Typography sx={{ fontWeight: 700, mr: 1 }}>MSP Engineer comments</Typography>
+              <Typography sx={{ color: "text.secondary", mb: 2, width: "44rem" }}>
+                *Has not had an initial internal inspection. Internal required to ensure process
+                changes have been successful and to ensure shell integrity.
+              </Typography>
+            </Box>
+            <Box sx={{ alignItems: "center", display: "flex", justifyContent: "space-between" }}>
+              <Typography sx={{ fontWeight: 700, mb: 0.75 }}>Assumptions</Typography>
+              <Paper variant="outlined" sx={{ p: 1, width: "44rem" }}>
+                <TextField
+                  fullWidth
+                  multiline
+                  minRows={3}
+                  value={`I:\\BTAREA\\BTES\\FIXEDEQUIP\\Inspection\\FS\\CLEU\\CLEUs\nInspection Planner’s Folder\\EOR Folder CLE3L3-T0302`}
+                  variant="standard"
+                  InputProps={{ disableUnderline: true }}
+                />
+              </Paper>
+            </Box>
           </Box>
-          <Typography sx={{ color: "text.secondary", mb: 2 }}>
-            *Has not had an initial internal inspection. Internal required to
-            ensure process changes have been successful and to ensure shell
-            integrity.
-          </Typography>
-
-          <Typography sx={{ fontWeight: 700, mb: 0.75 }}>
-            Assumptions
-          </Typography>
-          <Paper variant="outlined" sx={{ p: 1 }}>
-            <TextField
-              fullWidth
-              multiline
-              minRows={3}
-              value={`I:\\BTAREA\\BTES\\FIXEDEQUIP\\Inspection\\FS\\CLEU\\CLEUs\nInspection Planner’s Folder\\EOR Folder CLE3L3-T0302`}
-              variant="standard"
-              InputProps={{ disableUnderline: true }}
-            />
-          </Paper>
+        </Paper>
+        <Box sx={{ width: "30rem", mt: 2 }}>
+          <ReportCard title="Reference Attachments" links={REPORT_LINKS} />
         </Box>
+        {/* ===== MSP Engineer comments / Assumptions ===== */}
 
         {/* --------------------------- Dynamic Footer --------------------------- */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent:
+              (modelCreated && !hasThickness) || (hasThickness && !approved)
+                ? "space-between"
+                : "flex-end",
+            mt: 2,
+          }}
+        >
           {/* LEFT BUTTON */}
-          {!modelCreated && (
-            <Button
-              variant="outlined"
-              color="error"
-              sx={{ textTransform: "none" }}
-              onClick={() => navigate(-1)}
-            >
-              BACK TO LIST
-            </Button>
-          )}
           {modelCreated && !hasThickness && (
-            <Button
-              variant="contained"
-              sx={{ textTransform: "none" }}
-              onClick={handleCalcRT}
-            >
+            <Button variant="contained" sx={{ textTransform: "none" }} onClick={handleCalcRT}>
               CALCULATE RETIREMENT THICKNESS
             </Button>
           )}
-          {hasThickness && (
+          {hasThickness && !approved && (
+            <Box sx={{ mt: 1, display: "flex", justifyContent: "flex-end" }}>
+              <Chip
+                label="Retirement Thickness for IDM/EOR Evaluation : 1.33 mm"
+                color="success"
+                sx={{ fontWeight: 700, borderRadius: 2, }}
+              />
+            </Box>
+          )}
+          {/* RIGHT BUTTONS */}
+          <Box display={"flex"} gap={2}>
             <Button
               variant="outlined"
               color="error"
               sx={{ textTransform: "none" }}
               onClick={() => navigate(-1)}
             >
-              BACK TO LIST
+              BACK
             </Button>
-          )}
+            {!modelCreated && (
+              <Button
+                variant="contained"
+                color="error"
+                sx={{ textTransform: "none" }}
+                onClick={handleCreate3D}
+              >
+                CREATE 3D MODEL
+              </Button>
+            )}
 
-          {/* RIGHT BUTTON */}
-          {!modelCreated && (
+            {hasThickness && !approved && (
+              <Button
+                variant="contained"
+                color="error"
+                sx={{ textTransform: "none" }}
+                onClick={handleSendToReview}
+              >
+                SEND TO REVIEW
+              </Button>
+            )}
+
+            {approved && (
+              <Button
+                variant="contained"
+                color="error"
+                sx={{ textTransform: "none" }}
+                onClick={handleGenerateReport}
+              >
+                GENERATE REPORT
+              </Button>
+            )}
+          </Box>
+          {/* {!modelCreated && (
             <Button
-              variant="contained"
+              variant="outlined"
               color="error"
               sx={{ textTransform: "none" }}
-              onClick={handleCreate3D}
+              onClick={() => navigate(-1)}
             >
-              CREATE 3D MODEL
+              BACK
+            </Button>
+          )} */}
+          {/* {hasThickness && (
+            <Button
+              variant="outlined"
+              color="error"
+              sx={{ textTransform: "none" }}
+              onClick={() => navigate(-1)}
+            >
+              BACK
             </Button>
           )}
-
           {modelCreated && !hasThickness && (
             <Button
               variant="outlined"
@@ -440,31 +476,11 @@ const TMinModel: React.FC = () => {
               sx={{ textTransform: "none" }}
               onClick={() => navigate(-1)}
             >
-              BACK TO LIST
+              BACK
             </Button>
-          )}
+          )} */}
 
-          {hasThickness && !approved && (
-            <Button
-              variant="contained"
-              color="error"
-              sx={{ textTransform: "none" }}
-              onClick={handleSendToReview}
-            >
-              SEND TO REVIEW
-            </Button>
-          )}
-
-          {approved && (
-            <Button
-              variant="contained"
-              color="error"
-              sx={{ textTransform: "none" }}
-              onClick={handleGenerateReport}
-            >
-              GENERATE REPORT
-            </Button>
-          )}
+          {/* RIGHT BUTTON */}
         </Box>
       </TMinScaffold>
 
@@ -490,7 +506,7 @@ const TMinModel: React.FC = () => {
         </DialogActions>
       </Dialog>
     </MainLayout>
-  );
+  )
 };
 
 export default TMinModel;

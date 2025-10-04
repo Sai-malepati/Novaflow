@@ -393,7 +393,7 @@ const linkSx = {
 
 // --- Table columns
 const COLUMNS: Column[] = [
-  { id: 'TaskID', label: 'Task ID', sortable: false, minWidth: 120 },
+  { id: 'TaskID', label: 'Task ID', minWidth: 120 },
   { id: 'Severity', label: 'Severity' },
   { id: 'AssignedDate', label: 'Assigned Date' },
   { id: 'DueInDays', label: 'Due In Days' },
@@ -464,27 +464,33 @@ const TOOLS = [
   { label: "Tool 6", icon: <ToolIcon /> },
 ]
 
-const ReportCard = memo(function ReportCard({ title }: { title: 'Weekly Report' | 'Monthly Report' }) {
+export const ReportCard = memo(function ReportCard({
+  title,
+  links,
+}: {
+  title: string;
+  links: string[]
+}) {
   return (
     <Card elevation={2} sx={{ borderRadius: 2 }}>
       <CardContent sx={{ p: 2 }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.2, color: '#333' }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.2, color: "#333" }}>
           {title}
         </Typography>
         <Divider sx={{ mb: 1.5 }} />
         {/* <Box component="ul" sx={{ m: 0, pl: 2.5, '& li + li': { mt: 0.5 } }}> */}
-          {REPORT_LINKS.map((text) => (
-            // <li key={text}>
-              <MUILink href="#" sx={linkSx}>
-                {text}
-              </MUILink>
-            // </li>
-          ))}
+        {links.map((text) => (
+          // <li key={text}>
+          <MUILink href="#" sx={linkSx}>
+            {text}
+          </MUILink>
+          // </li>
+        ))}
         {/* </Box> */}
       </CardContent>
     </Card>
-  );
-});
+  )
+})
 
 const ToolsGrid = memo(function ToolsGrid() {
   return (
@@ -536,26 +542,31 @@ const Dashboard: React.FC = () => {
 
   return (
     <MainLayout>
-      <Box sx={{ p: 3, pt: '5rem' }}>
+      <Box sx={{ p: 3, pt: "5rem" }}>
         <UserInfoHeader />
         <Box
           sx={{
             mb: 2,
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' },
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" },
             gap: 2,
-            alignItems: 'start',
+            alignItems: "start",
           }}
         >
           <DataTable
             title="Recent ESL Task"
             columns={COLUMNS}
-           rows={enhancedRows as unknown as any[]}         // ✅ use enhanced rows
+            rows={ROWS} // ✅ use enhanced rows
             showActions={{ view: true }} // unchanged
+            navigateTo="/tmin-review"
+            sourceLink="TaskID"
           />
 
-          <Box sx={{ mt: 4, width: '100%', borderRadius: '10px', boxShadow: 3, bgcolor: '#fff' }}>
-            <Typography variant="subtitle1" sx={{ backgroundColor: '#FDF3F3', p: 1, mb: 2, fontWeight: 600 }}>
+          <Box sx={{ mt: 4, width: "100%", borderRadius: "10px", boxShadow: 3, bgcolor: "#fff" }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ backgroundColor: "#FDF3F3", p: 1, mb: 2, fontWeight: 600 }}
+            >
               Work Report
             </Typography>
             <ResponsiveContainer width="100%" height={120}>
@@ -571,20 +582,20 @@ const Dashboard: React.FC = () => {
                 mt: 2,
                 px: 2,
                 pb: 2,
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
                 gap: 2,
               }}
             >
-              <ReportCard title="Weekly Report" />
-              <ReportCard title="Monthly Report" />
+              <ReportCard title="Weekly Report" links={REPORT_LINKS} />
+              <ReportCard title="Monthly Report" links={REPORT_LINKS} />
             </Box>
           </Box>
         </Box>
         <ToolsGrid />
       </Box>
     </MainLayout>
-  );
+  )
 };
 
 export default Dashboard;
