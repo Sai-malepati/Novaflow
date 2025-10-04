@@ -20,86 +20,9 @@ import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined
 
 import MainLayout from "../components/MainLayout";
 import TMinScaffold, { TMinStep } from "../components/TMinScaffold";
-import RequestMissingDocsDialog, {
-  MailDoc,
-} from "../components/RequestMissingDocsDialog";
+import RequestMissingDocsDialog  from "../components/RequestMissingDocsDialog";
 import { useLocation, useNavigate } from "react-router-dom";
-
-type DocRow = {
-  id: string;
-  name: string;
-  link: string;
-  available: "Yes" | "No";
-  tool: "CREDO" | "Vault" | "Open-Text";
-  quality: "Good" | "Average" | "Bad";
-};
-
-const ROWS: DocRow[] = [
-  {
-    id: "1",
-    name: "Manufacturer Record Book (MRB)",
-    link: "https://dalwaps//..",
-    available: "Yes",
-    tool: "CREDO",
-    quality: "Good",
-  },
-  {
-    id: "2",
-    name: "General arrangement / fabrication drawing",
-    link: "https://dalwaps//..",
-    available: "Yes",
-    tool: "CREDO",
-    quality: "Good",
-  },
-  {
-    id: "3",
-    name: "Datasheet",
-    link: "https://dalwaps//..",
-    available: "Yes",
-    tool: "CREDO",
-    quality: "Average",
-  },
-  {
-    id: "4",
-    name: "U1A form",
-    link: "https://dalwaps//..",
-    available: "Yes",
-    tool: "CREDO",
-    quality: "Bad",
-  },
-  {
-    id: "5",
-    name: "Nameplate details",
-    link: "https://dalwaps//..",
-    available: "Yes",
-    tool: "Vault",
-    quality: "Average",
-  },
-  {
-    id: "6",
-    name: "Piping and Instrumentation Diagram",
-    link: "https://dalwaps//..",
-    available: "Yes",
-    tool: "Vault",
-    quality: "Good",
-  },
-  {
-    id: "7",
-    name: "Equipment strategy",
-    link: "https://dalwaps//..",
-    available: "Yes",
-    tool: "Open-Text",
-    quality: "Good",
-  },
-  {
-    id: "8",
-    name: "TML Sketch",
-    link: "https://dalwaps//..",
-    available: "Yes",
-    tool: "Open-Text",
-    quality: "Average",
-  },
-];
+import { useGetItemsQuery } from "store/api";
 
 const DOCS_STEPS: TMinStep[] = [
   { title: "Gathering Details", helper: "Complete", state: "done" },
@@ -112,9 +35,10 @@ const DOCS_STEPS: TMinStep[] = [
 
 const TMinDocs: React.FC = () => {
   const navigate = useNavigate();
+  const { data = [] } = useGetItemsQuery("DocumentsCollections")
   const { state } = useLocation() as { state?: { eslId?: string } };
   const eslId = state?.eslId ?? "107011";
-
+  const rows = Array.isArray(data) ? data : [data]
   // six tiles
   const tiles = [
     { icon: <span>🏷️</span>, label: "Equipment Tag", value: "CLE3L3-T0302" },
@@ -137,7 +61,7 @@ const TMinDocs: React.FC = () => {
     "K:\\BTAREA\\BTES\\FIXEDEQUIP\\Inspection\\FS\\CLEU\\CLEUs\\Inspection Planner’s Folder\\EOR Folder CLE3L3-T0302";
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const allSelected = selectedIds.length === ROWS.length && ROWS.length > 0;
+  const allSelected = selectedIds.length === data.length && data.length > 0;
 
   const toggleOne = (id: string) =>
     setSelectedIds((prev) =>
@@ -145,20 +69,22 @@ const TMinDocs: React.FC = () => {
     );
   const toggleAll = () =>
     setSelectedIds((prev) =>
-      prev.length === ROWS.length ? [] : ROWS.map((r) => r.id)
-    );
+      prev.length === data.length ? [] : data.map((r) => r.documentCollectionId),
+    )
 
-  const selectedDocs: MailDoc[] = useMemo(
+  const selectedDocs = useMemo(
     () =>
-      ROWS.filter((r) => selectedIds.includes(r.id)).map((r) => ({
-        id: r.id,
-        name: r.name,
-        tool: r.tool,
-        quality: r.quality,
-        available: r.available,
-      })),
-    [selectedIds]
-  );
+      data
+        .filter((r) => selectedIds.includes(r.documentCollectionId))
+        .map((r) => ({
+          documentCollectionId: r.documentCollectionId,
+          documentName: r.documentName,
+          toolName: r.toolName,
+          documentQualityName: r.documentQualityName,
+          availableStatusName: r.availableStatusName,
+        })),
+    [selectedIds],
+  )
 
   const [mailOpen, setMailOpen] = useState(false);
 
@@ -223,41 +149,41 @@ const TMinDocs: React.FC = () => {
               </TableHead>
 
               <TableBody>
-                {ROWS.map((r) => {
-                  const checked = selectedIds.includes(r.id)
+                {rows.map((r) => {
+                  const checked = selectedIds.includes(r?.documentCollectionId)
                   return (
-                    <TableRow key={r.id} hover>
+                    <TableRow key={r.documentCollectionId} hover>
                       <TableCell width={50}>
-                        <Checkbox size="small" checked={checked} onChange={() => toggleOne(r.id)} />
+                        <Checkbox size="small" checked={checked} onChange={() => toggleOne(r.documentCollectionId)} />
                       </TableCell>
 
-                      <TableCell>{r.name}</TableCell>
+                      <TableCell>{r.documentName}</TableCell>
 
                       <TableCell>
-                        <MUILink href={r.link} underline="hover">
-                          {r.link}
+                        <MUILink href={r.documentLink} underline="hover">
+                          {r.documentLink}
                         </MUILink>
                       </TableCell>
 
                       <TableCell>
                         <Typography
-                          color={r.available === "Yes" ? "success.main" : "error.main"}
+                          color={r.availableStatusName === "Yes" ? "success.main" : "error.main"}
                           fontWeight={600}
                         >
-                          {r.available}
+                          {r.availableStatusName}
                         </Typography>
                       </TableCell>
 
-                      <TableCell>{r.tool}</TableCell>
+                      <TableCell>{r.toolName}</TableCell>
 
                       <TableCell>
                         <Chip
                           size="small"
-                          label={r.quality}
+                          label={r.documentQualityName}
                           color={
-                            r.quality === "Good"
+                            r.documentQualityName === "Good"
                               ? "success"
-                              : r.quality === "Average"
+                              : r.documentQualityName === "Average"
                                 ? "warning"
                                 : "error"
                           }

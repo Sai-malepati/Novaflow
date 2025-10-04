@@ -10,3 +10,10 @@ export interface DataTableProps {
   rows: any[];
   pageSizeOptions?: number[];
 }
+
+export type ColumnsType = {
+  id: string | number;
+  label: string;
+  sortable?: boolean;
+  minWidth?: number;
+};

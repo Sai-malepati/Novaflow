@@ -24,12 +24,12 @@ import TextFieldsOutlinedIcon from '@mui/icons-material/TextFieldsOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 
 export type MailDoc = {
-  id: string;
-  name: string;
-  tool: 'CREDO' | 'Vault' | 'Open-Text';
-  quality: 'Good' | 'Average' | 'Bad';
-  available: 'Yes' | 'No';
-};
+  documentCollectionId: string | number
+  documentName: string
+  toolName: "CREDO" | "Vault" | "Open-Text"
+  documentQualityName: "Good" | "Average" | "Bad"
+  availableStatusName: "Yes" | "No"
+}
 
 type Props = {
   open: boolean;
@@ -146,8 +146,9 @@ const RequestMissingDocsDialog: React.FC<Props> = ({
 
   const defaultBody = useMemo(() => {
     const lines = selectedDocs.map(
-      (d, i) => `${i + 1}. ${d.name}${d.tool ? ` - ${d.tool}` : ''}${d.quality ? ` (${d.quality})` : ''}`
-    );
+      (d, i) =>
+        `${i + 1}. ${d.documentName}${d.toolName ? ` - ${d.toolName}` : ""}${d.documentQualityName ? ` (${d.documentQualityName})` : ""}`,
+    )
     return [
       'Dear MSP Reviewer,',
       '',

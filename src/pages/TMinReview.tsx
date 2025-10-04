@@ -2,15 +2,18 @@ import React, { useRef, useState } from 'react';
 import {
   Alert,
   Box,
+  Button,
   Card,
   CardContent,
   IconButton,
+  Link,
   Paper,
   Snackbar,
   Stack,
   Tooltip,
   Typography,
 } from '@mui/material';
+import { styled } from "@mui/material/styles"
 import MainLayout from '../components/MainLayout';
 import TMinScaffold, { TMinStep } from '../components/TMinScaffold';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -18,6 +21,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import NoteAddOutlinedIcon from '@mui/icons-material/NoteAddOutlined';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
+import { useCreateItemMutation } from 'store/api';
 
 const steps: TMinStep[] = [
   { title: "Gathering Details", helper: "Complete", state: "done" },
@@ -27,6 +31,18 @@ const steps: TMinStep[] = [
   { title: "T-Min Review", state: "idle" },
   { title: "Generating Report", state: "idle" },
 ];
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+})
 /* ---- small local cards reused on this page ---- */
 const HollowCard = ({
   title,
@@ -39,7 +55,7 @@ const HollowCard = ({
   minH?: number;
   children?: React.ReactNode;
 }) => (
-  <Card variant="outlined" sx={{ borderRadius: 2 }}>
+  <Card variant="outlined" sx={{ borderRadius: 2, }}>
     <Box
       sx={{
         px: 1.5,
@@ -59,15 +75,8 @@ const HollowCard = ({
         {action}
       </Stack>
     </Box>
-    <CardContent sx={{ minHeight: minH, padding: 0 }}>
-      {children ?? (
-        <Box
-          sx={{
-            height: minH - 40,
-            borderRadius: 1,
-          }}
-        />
-      )}
+    <CardContent sx={{ minHeight: minH, p: 2 }}>
+      {children}
     </CardContent>
   </Card>
 );
@@ -128,6 +137,16 @@ const TMinReview: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation() as { state?: { eslId?: string } };
   const eslId = state?.eslId || '107011';
+  const [createItem] = useCreateItemMutation();
+  const handleUploadDoc = async (event: any) => {
+    const file = event.target.files?.[0];
+    file && await createItem({
+      endpoint: `OpentextSource/U1AFormTMinCalculation?fileName=${file.name}`,
+      body: JSON.stringify({
+        fileName: file.name,
+      }),
+    })
+  }
 
   // MSP Notepad
   const [note, setNote] = useState('');
@@ -224,12 +243,26 @@ const TMinReview: React.FC = () => {
           <HollowCard
             title="Attachments"
             minH={280}
-            action={
-              <IconButton size="small" color="error">
-                <NoteAddOutlinedIcon />
-              </IconButton>
-            }
-          />
+            // action={
+            //   <IconButton size="small" color="error" onClick={handleUploadDoc}>
+            //     <NoteAddOutlinedIcon />
+            //   </IconButton>
+            //   <Button component="label" variant="text" startIcon={<NoteAddOutlinedIcon />}>
+            //     <VisuallyHiddenInput
+            //       type="file"
+            //       onChange={handleUploadDoc}
+            //       multiple // Set to true if you want to allow multiple files
+            //     />
+            //   </Button>
+            // }
+          >
+            <Link sx={{ display: "block" }} href="#">
+              bpvc_viii-1_u-1a_5.pdf
+            </Link>
+            <Link sx={{ display: "block" }} variant="body1" href="#">
+              bpvc_6.pdf
+            </Link>
+          </HollowCard>
           <HollowCard
             title="MSP Engineer Note Pad"
             minH={280}

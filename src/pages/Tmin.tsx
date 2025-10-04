@@ -1,109 +1,48 @@
-import React, { useMemo } from 'react';
-import { Box, Typography, Link as MUILink } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Box, Typography, Link as MUILink, Modal, CircularProgress } from '@mui/material';
 import MainLayout from '../components/MainLayout';
 import { UserInfoHeader } from './user-info-header/UserInfoHeader';
 import DataTable from '../components/DataTable';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import { ColumnsType } from 'types';
+import { useGetItemsQuery } from 'store/api';
+import SvgModalAnimator from 'components/SvgModalAnimator';
 
-/* ✅ NEW: Row & Column types so TS knows the shape */
-type Row = {
-  ESLID: string;
-  Severity: string;
-  AssignedDate: string;
-  BusinessTeam: string;
-  DueInDays: string;
-  Unit: string;
-  EquipmentType: string;
-  Status: string;
-  ProcessDescription: string;
-};
-
-type Column = {
-  id: keyof Row | 'Actions';
-  label: string;
-  sortable?: boolean;
-  minWidth?: number;
-};
-
-const COLUMNS: Column[] = [
-  { id: "ESLID", label: "ESL ID", sortable: true, minWidth: 120 },
-  { id: "Severity", label: "Severity" },
-  { id: "AssignedDate", label: "Assigned Date" },
-  { id: "BusinessTeam", label: "Business Team", sortable: true },
-  { id: "DueInDays", label: "Due In Days" },
-  { id: "Unit", label: "Unit" },
-  { id: "EquipmentType", label: "Equipment Type" },
-  { id: "Status", label: "Status" },
-  { id: "ProcessDescription", label: "Process Description", minWidth: 260 },
+const COLUMNS: ColumnsType[] = [
+  { id: "eslid", label: "ESL ID", sortable: true, minWidth: 120 },
+  { id: "severityName", label: "Severity" },
+  { id: "assignedDate", label: "Assigned Date" },
+  { id: "businessTeamName", label: "Business Team", sortable: true },
+  { id: "dueInDays", label: "Due In Days" },
+  { id: "unitName", label: "Unit" },
+  { id: "equipmentTypeName", label: "Equipment Type" },
+  { id: "statusName", label: "Status" },
+  { id: "processDescription", label: "Process Description", minWidth: 260 },
 ]
-
-/* ✅ CHANGED: explicitly type ROWS as Row[] */
-const ROWS: Row[] = [
-  {
-    ESLID: '107011',
-    Severity: 'Critical',
-    AssignedDate: '30/07/2025',
-    BusinessTeam: 'CDCC',
-    DueInDays: '2 days',
-    Unit: 'PS3',
-    EquipmentType: 'Piping',
-    Status: 'Inprogress',
-    ProcessDescription:
-      'Product Manifold System // Number Product Manifold (PS3-PI25F)',
-  },
-  {
-    ESLID: '107012',
-    Severity: 'High',
-    AssignedDate: '30/07/2025',
-    BusinessTeam: 'CLEUS',
-    DueInDays: '2 days',
-    Unit: 'WLFS',
-    EquipmentType: 'Piping',
-    Status: 'Under MSP review',
-    ProcessDescription: 'SOUR WATER',
-  },
-  {
-    ESLID: '107013',
-    Severity: 'High',
-    AssignedDate: '30/07/2025',
-    BusinessTeam: 'CLEU3',
-    DueInDays: '3 days',
-    Unit: 'CLEU3',
-    EquipmentType: 'Pressure Vessel',
-    Status: 'New Task',
-    ProcessDescription: 'REACTIVATOR',
-  },
-];
 
 const TMin: React.FC = () => {
   const location = useLocation();
-  const params = useParams<{ id?: string }>();
   const navigate = useNavigate();
-
+  const params = useParams<{ id?: string }>();
+  const {data = []} = useGetItemsQuery('Esls');
   const taskIdFromState = (location.state as any)?.taskId as string | undefined;
   const taskId = taskIdFromState || params.id;
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedEslId, setSelectedEslId] = useState<string | null>(null)
+  const handleClick = (value: string) => {
+    setSelectedEslId(value);
+    setOpenModal(true);
+  }
 
-  /* ✅ CHANGED: type the memo result as Row[] */
-  const rowsToShow: Row[] = useMemo(() => {
-    const copy = [...ROWS];
-    if (!taskId) return copy;
-    copy.sort((a, b) => (a.ESLID === taskId ? -1 : b.ESLID === taskId ? 1 : 0));
-    return copy;
-  }, [taskId]);
-
-  /* ✅ NEW: UI row type because ESLID becomes a ReactNode (link) */
-  type UiRow = Omit<Row, 'ESLID'> & { ESLID: React.ReactNode };
-  const enhancedRows: UiRow[] = rowsToShow.map((r) => ({
-    ...r,
-    ESLID: (
-      <MUILink
-        sx={{ cursor: 'pointer', color: 'primary.main', fontWeight: 600 }}
-        onClick={() => navigate('/tmin-review', { state: { eslId: r.ESLID } })}
-      >
-        {r.ESLID}
-      </MUILink>
-    ),
-  }));
+  useEffect(() => {
+    if (openModal && selectedEslId) {
+      const timer = setTimeout(() => {
+        setOpenModal(false)
+        navigate("/tmin-review", { state: { eslId: selectedEslId } })
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [openModal, selectedEslId])
 
   return (
     <MainLayout>
@@ -115,19 +54,47 @@ const TMin: React.FC = () => {
             Showing details (clicked) for ESL ID: <strong>{taskId}</strong>
           </Typography>
         )}
-
-        {/* If your DataTable only accepts string|number cells, keep the cast.
-           Better: widen DataTable cell type to include React.ReactNode. */}
         <DataTable
           title="END OF SERVICE LIFE MANAGEMENT"
           columns={COLUMNS}
-          rows={ROWS}
+          rows={data}
           isSearchable
           isPagination
           showActions={{ view: true }}
-          sourceLink='ESLID'
-          navigateTo='/tmin-review'
+          sourceLink="eslid"
+          navigateTo="/tmin-review"
+          onClick={handleClick}
         />
+        <Modal open={openModal} onClose={() => setOpenModal(false)}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              bgcolor: "background.paper",
+              p: 4,
+              borderRadius: 2,
+              boxShadow: 24,
+              textAlign: "center",
+              width: 300,
+            }}
+          >
+            <Typography variant="h6">ESL ID: {selectedEslId}</Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              Redirecting to review...
+            </Typography>
+            <Box sx={{ mt: 2 }}>
+              <SvgModalAnimator
+                open={openModal}
+                onClose={() => setOpenModal(false)}
+                selectedEslId={selectedEslId}
+                frameInterval={400}
+              />
+            </Box>
+            <CircularProgress sx={{ mt: 2 }} />
+          </Box>
+        </Modal>
       </Box>
     </MainLayout>
   )

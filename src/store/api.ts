@@ -2,7 +2,10 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const api = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({ baseUrl: "https://jsonplaceholder.typicode.com/" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl:
+      "https://novaflowdocumentservice-axhseggmeeffgjc2.centralindia-01.azurewebsites.net/api/",
+  }),
   tagTypes: ["CRUD"],
   endpoints: (builder) => ({
     getItems: builder.query<any[], string>({

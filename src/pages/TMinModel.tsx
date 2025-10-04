@@ -23,6 +23,7 @@ import MainLayout from "../components/MainLayout";
 import TMinScaffold, { TMinStep } from "../components/TMinScaffold";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ReportCard } from "./dashboard/Dashboard";
+import { useCreateItemMutation } from "store/api";
 
 /* --------------------------------- data --------------------------------- */
 
@@ -169,12 +170,34 @@ const TMinModel: React.FC = () => {
   const [modelCreated, setModelCreated] = React.useState(false);
   const [hasThickness, setHasThickness] = React.useState(false);
   const [approved, setApproved] = React.useState(false);
+  const [thicknessValue, setThicknessValue] = React.useState<string | number | null>(null);
 
   /* popup for send to review */
   const [openSendPopup, setOpenSendPopup] = React.useState(false);
+  const [createItem, {isLoading}] = useCreateItemMutation();
 
   const handleCreate3D = () => setModelCreated(true);
-  const handleCalcRT = () => setHasThickness(true);
+  const handleCalcRT = async () => {    
+    const newItem = await createItem({
+      endpoint: "TminCalculation/calculate",
+      body: {
+        pipeNps: 0.5,
+        schedule: "10S",
+        nominalthickness: 0.14,
+        threadedPipe: "Yes",
+        tmm: 0.4,
+        plantManagerJ: 0.2,
+        plantManagerK: 0.3,
+        localizedDamage: "Yes",
+        pmg: 0.083,
+        api: 0,
+        location: "Test path",
+        component: "Test Component",
+      },
+    }).unwrap();
+    setThicknessValue(newItem?.jsonres?.retirementThickness ?? "NA");
+    !isLoading && setHasThickness(true)
+  }
   const handleSendToReview = () => setOpenSendPopup(true);
   const handleSendOk = () => {
     setOpenSendPopup(false);
@@ -393,16 +416,21 @@ const TMinModel: React.FC = () => {
         >
           {/* LEFT BUTTON */}
           {modelCreated && !hasThickness && (
-            <Button variant="contained" sx={{ textTransform: "none" }} onClick={handleCalcRT}>
+            <Button
+              loading={isLoading}
+              variant="contained"
+              sx={{ textTransform: "none" }}
+              onClick={handleCalcRT}
+            >
               CALCULATE RETIREMENT THICKNESS
             </Button>
           )}
-          {hasThickness && !approved && (
+          {hasThickness && !approved && !isLoading && (
             <Box sx={{ mt: 1, display: "flex", justifyContent: "flex-end" }}>
               <Chip
-                label="Retirement Thickness for IDM/EOR Evaluation : 1.33 mm"
+                label={`Retirement Thickness for IDM/EOR Evaluation : ${thicknessValue} mm`}
                 color="success"
-                sx={{ fontWeight: 700, borderRadius: 2, }}
+                sx={{ fontWeight: 700, borderRadius: 2 }}
               />
             </Box>
           )}
