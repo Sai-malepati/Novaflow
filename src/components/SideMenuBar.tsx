@@ -7,7 +7,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications"
 import PersonIcon from "@mui/icons-material/Person"
 import SettingsIcon from "@mui/icons-material/Settings"
 import { useNavigate } from "react-router-dom"
-import logo from '../static/images/logo.png'
+import logo from "../static/images/logo.png"
 
 const drawerWidth = 240
 
@@ -35,7 +35,7 @@ const Sidebar: React.FC = () => {
     { text: "Setting", icon: <SettingsIcon /> },
   ]
   const currentPath = window.location.pathname
-  
+
   return (
     <Drawer
       variant="permanent"
@@ -75,7 +75,11 @@ const Sidebar: React.FC = () => {
         }}
       >
         {/* Replace with your logo */}
-        <img src={logo} alt="Logo" style={{ width: "30px", height: "30px", zIndex: 1, position: 'relative', top: '0.8rem' }} />
+        <img
+          src={logo}
+          alt="Logo"
+          style={{ width: "30px", height: "30px", zIndex: 1, position: "relative", top: "0.8rem" }}
+        />
       </Box>
       <Box sx={{ overflow: "auto" }}>
         <List sx={{ paddingTop: 4 }}>
