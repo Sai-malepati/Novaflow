@@ -102,7 +102,7 @@ const TMinDocs: React.FC = () => {
         enableUploadDoc={true}
         fileLocation={fileLocation}
         onBack={() => navigate("/tmin")}
-        onNext={() => navigate("/tmin-model", { state: { eslId } })} // <-- ✅ go to TMinModel
+        onNext={() => navigate("/tmin-model", { state: { eslId }})}
         rightExtra={
           <Button
             variant="outlined"

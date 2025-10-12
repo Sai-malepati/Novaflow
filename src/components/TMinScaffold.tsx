@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { Fragment, useState } from "react"
 import {
   Box,
   Card,
@@ -86,58 +86,6 @@ const Row = ({ label, children }: { label: string; children: React.ReactNode }) 
   </Box>
 )
 
-const StepNode = ({
-  title,
-  state,
-  index,
-  helper,
-}: {
-  title: string
-  state: TMinStep["state"]
-  index: number
-  helper?: string
-}) => {
-  const bg = state === "done" ? "success.main" : state === "active" ? "warning.main" : "grey.400"
-  return (
-    <Box sx={{ flex: "0 1 110px", minWidth: 100, textAlign: "center" }}>
-      <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5 }}>
-        {title}
-      </Typography>
-      <Box sx={{ display: "grid", placeItems: "center" }}>
-        <Box
-          sx={{
-            width: 34,
-            height: 34,
-            borderRadius: "50%",
-            bgcolor: bg,
-            color: "#fff",
-            fontWeight: 700,
-            display: "grid",
-            placeItems: "center",
-          }}
-        >
-          ✓
-        </Box>
-      </Box>
-      <Typography variant="caption" sx={{ color: "text.secondary", mt: 0.5, display: "block" }}>
-        Step {index}
-      </Typography>
-      {helper && (
-        <Typography
-          variant="body2"
-          sx={{
-            mt: 0.5,
-            fontWeight: 700,
-            color: state === "done" ? "success.main" : "warning.main",
-          }}
-        >
-          {helper}
-        </Typography>
-      )}
-    </Box>
-  )
-}
-
 const Connector = () => <Box sx={{ flex: 1, height: 8, borderRadius: 4, bgcolor: "#D9D9D9" }} />
 
 const TileCard = ({ icon, label, value }: Tile) => (
@@ -212,6 +160,156 @@ const TMinScaffold: React.FC<Props> = ({
 
   const handleBack = () => (onBack ? onBack() : window.history.back())
 
+  const StepNode = ({
+    title,
+    state,
+    index,
+    helper,
+  }: {
+    title: string
+    state: TMinStep["state"]
+    index: number
+    helper?: string
+  }) => {
+    const bg =
+      state === "done"
+        ? "linear-gradient(180deg, #6BD871, #1D3F1F)"
+        : state === "active"
+          ? "warning.main"
+          : "grey.400"
+    const textColor = state === "done" ? "#459649" : state === "active" ? "#FF9800" : "#5A5A5A"
+    const fontBold = state === "done" || state === "active" ? "700" : "500"
+    return (
+      <Fragment key={title}>
+        <Box
+          sx={{
+            maxWidth: 100,
+            textAlign: "center",
+            position: "absolute",
+            left: `${(index - 1) * (100 / (steps.length - 1))}%`,
+            transform: "translateX(-50%)",
+            top: "-5em",
+          }}
+        >
+          <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5 }}>
+            {title}
+          </Typography>
+        </Box>
+        {state === "active" ? (
+          <Box
+            sx={{
+              maxWidth: 100,
+              textAlign: "center",
+              position: "absolute",
+              left: `${(index - 1) * (100 / (steps.length - 1))}%`,
+              transform: "translate(-50%, -50%) scale(1.5)",
+              top: "50%",
+              zIndex: 2,
+              "&:before": {
+                content: '""',
+                position: "absolute",
+                transform: "translate(-50%, -50%)",
+                top: "50%",
+                left: "50%",
+                width: "70%",
+                height: "70%",
+                borderRadius: "50%",
+                bgcolor: "#E8E8E8",
+                animation: "pulse 2s infinite",
+                margin: "auto",
+              },
+              "&:after": {
+                content: '""',
+                position: "absolute",
+                transform: "translate(-50%, -50%)",
+                top: "50%",
+                left: "50%",
+                width: "40%",
+                height: "40%",
+                borderRadius: "50%",
+                bgcolor: "#E8E8E8",
+                animation: "pulse 2s infinite",
+                backgroundImage: "linear-gradient(180deg, yellow, red)",
+                margin: "auto",
+              },
+            }}
+          >
+            <Box sx={{ display: "grid", placeItems: "center" }}>
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: "50%",
+                  backgroundImage: bg,
+                  bgcolor: "#fff",
+                  color: "#fff",
+                  fontWeight: 700,
+                  display: "grid",
+                  placeItems: "center",
+                  border: "1px solid #e8e8e8",
+                  boxShadow: "0px -1px 0px rgba(0, 0, 0, 0.2)",
+                }}
+              />
+            </Box>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              maxWidth: 100,
+              textAlign: "center",
+              position: "absolute",
+              left: `${(index - 1) * (100 / (steps.length - 1))}%`,
+              transform: "translate(-50%, -50%)",
+              top: "50%",
+              zIndex: 2,
+            }}
+          >
+            <Box sx={{ display: "grid", placeItems: "center" }}>
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: "50%",
+                  backgroundImage: bg,
+                  bgcolor: "#fff",
+                  color: "#fff",
+                  fontWeight: 700,
+                  display: "grid",
+                  placeItems: "center",
+                  border: "1px solid #e8e8e8",
+                  boxShadow: "0px -1px 0px rgba(0, 0, 0, 0.2)",
+                }}
+              />
+            </Box>
+          </Box>
+        )}
+        <Box
+          sx={{
+            maxWidth: 100,
+            textAlign: "center",
+            position: "absolute",
+            left: `${(index - 1) * (100 / (steps.length - 1))}%`,
+            transform: "translateX(-50%)",
+            bottom: "-4rem",
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              mt: 0.5,
+              display: "block",
+              width: "5rem",
+              color: textColor,
+              fontWeight: fontBold,
+            }}
+          >
+            {helper || `Step ${index}`}
+          </Typography>
+        </Box>
+      </Fragment>
+    )
+  }
+
   return (
     <Box sx={{ p: 2.25, pt: "4.75rem" }}>
       {/* Header: STATUS + Steps */}
@@ -221,111 +319,102 @@ const TMinScaffold: React.FC<Props> = ({
             {/* STATUS */}
             <Box
               sx={{
-                flex: "0 0 280px",
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+                jsustifyContent: "space-between",
                 bgcolor: "#FFF7F7",
                 borderRadius: 2,
                 border: "1px solid #EFEFEF",
                 p: 1.5,
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  gap: 1,
-                  mb: 0.25,
-                }}
-              >
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, letterSpacing: 0.4 }}>
-                  STATUS
-                </Typography>
+              <Box sx={{ flex: "0 0 150px", display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <Typography
-                  variant="caption"
-                  sx={{ ml: "auto", fontWeight: 800, color: "error.main" }}
+                  variant="subtitle2"
+                  sx={{ fontWeight: 700, fontSize: "0.8rem", color: "#28A5DD" }}
                 >
-                  ESL ID : {eslId}
+                  ESL ID
+                </Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#5A5A5A", fontSize: "0.8rem" }}>
+                  SAP ID
+                </Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#6D6E71", fontSize: "0.8rem" }}>
+                  Assigned Date
+                </Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#6D6E71", fontSize: "0.8rem" }}>
+                  Time Remaining
+                </Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#6D6E71", fontSize: "0.8rem" }}>
+                  Site
                 </Typography>
               </Box>
-              <Divider sx={{ my: 1 }} />
-              <Row label="SAP ID :">
-                {!editing ? (
-                  <>
-                    <Typography sx={{ fontSize: 13.5, fontWeight: 800 }}>{sap}</Typography>
-                    <IconButton
-                      size="small"
-                      onClick={() => {
-                        setDraft(sap)
-                        setEditing(true)
-                      }}
-                      sx={{
-                        p: 0.25,
-                        color: "primary.main",
-                        "& .MuiSvgIcon-root": { fontSize: 16 },
-                      }}
-                      aria-label="Edit SAP ID"
-                    >
-                      <EditOutlinedIcon />
-                    </IconButton>
-                  </>
-                ) : (
-                  <>
-                    <TextField
-                      size="small"
-                      value={draft}
-                      onChange={(e) => setDraft(e.target.value)}
-                      sx={{ width: 130 }}
-                      inputProps={{
-                        style: { padding: "6px 8px", fontSize: 13.5 },
-                      }}
-                    />
-                    <IconButton
-                      color="success"
-                      size="small"
-                      onClick={() => {
-                        setSap(draft.trim() || sap)
-                        setEditing(false)
-                      }}
-                      sx={{ p: 0.25 }}
-                    >
-                      <CheckOutlinedIcon sx={{ fontSize: 16 }} />
-                    </IconButton>
-                    <IconButton
-                      color="error"
-                      size="small"
-                      onClick={() => setEditing(false)}
-                      sx={{ p: 0.25 }}
-                    >
-                      <CloseOutlinedIcon sx={{ fontSize: 16 }} />
-                    </IconButton>
-                  </>
-                )}
-              </Row>
-              <Row label="Assigned Date :">
-                <Typography sx={{ fontSize: 13.5 }}>{assignedDate}</Typography>
-              </Row>
-              <Row label="Time Remaining :">
-                <Typography sx={{ fontSize: 13.5 }}>{timeRemaining}</Typography>
-              </Row>
-              <Row label="Site :">
-                <Typography sx={{ fontSize: 13.5 }}>{site}</Typography>
-              </Row>
+              <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 1.5 }}>
+                <Typography sx={{ color: "#28A5DD", fontWeight: 600, fontSize: "0.8rem" }}>
+                  {eslId}
+                </Typography>
+                <Typography sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#080404" }}>
+                  {sap}
+                </Typography>
+                <Typography sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#292929" }}>
+                  {assignedDate}
+                </Typography>
+                <Typography sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#292929" }}>
+                  {timeRemaining}
+                </Typography>
+                <Typography sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#292929" }}>
+                  {site}
+                </Typography>
+              </Box>
             </Box>
 
             {/* Steps rail */}
-            <Box sx={{ flex: 1, px: 1, py: 0.25, minWidth: 0 }}>
+            <Box
+              sx={{
+                px: 1,
+                py: 0.25,
+                minWidth: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100%",
+                p: "0 5%",
+                m: "0 auto",
+              }}
+            >
               <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                  overflowX: "auto",
-                  pb: 0.5,
+                sx={() => {
+                  const lastDoneIndex = Math.max(
+                    ...steps.map((s, i) => (s.state === "done" ? i : -1)),
+                    -1,
+                  )
+                  const percent = ((lastDoneIndex + 1) / (steps.length - 1)) * 100
+                  const progressPercent = percent > 100 ? 100 : percent
+                  return {
+                    background: "#E8E8E8",
+                    height: "1rem",
+                    width: "100%",
+                    overflow: "visible",
+                    position: "relative",
+                    boxShadow: "0 -1px 0 rgba(0,0,0,0.2)",
+                    "&:after": {
+                      content: '""',
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      height: "100%",
+                      width: `${progressPercent}%`,
+                      backgroundImage: "linear-gradient(180deg, #6BD871, #1D3F1F)",
+                      zIndex: 1,
+                      borderRadius: 4,
+                      transition: "width 0.2s ease",
+                    },
+                  }
                 }}
               >
                 {steps.map((s, i) => (
                   <React.Fragment key={s.title}>
                     <StepNode title={s.title} state={s.state} index={i + 1} helper={s.helper} />
-                    {i < steps.length - 1 && <Connector />}
                   </React.Fragment>
                 ))}
               </Box>
@@ -386,11 +475,7 @@ const TMinScaffold: React.FC<Props> = ({
               sx={{ mt: 1.5 }}
             >
               {enableUploadDoc ? (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  sx={{ textTransform: "none" }}
-                >
+                <Button variant="contained" color="primary" sx={{ textTransform: "none" }}>
                   UPLOAD DOCUMENTS
                 </Button>
               ) : null}

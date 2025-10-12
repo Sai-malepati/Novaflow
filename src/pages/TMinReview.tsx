@@ -49,37 +49,34 @@ const HollowCard = ({
   action,
   minH = 260,
   children,
+  padding = 0,
 }: {
-  title: string;
-  action?: React.ReactNode;
-  minH?: number;
-  children?: React.ReactNode;
+  title: string
+  action?: React.ReactNode
+  minH?: number
+  children?: React.ReactNode
+  padding?: number
 }) => (
-  <Card variant="outlined" sx={{ borderRadius: 2, }}>
+  <Card variant="outlined" sx={{ borderRadius: 2 }}>
     <Box
       sx={{
         px: 1.5,
         py: 1,
-        bgcolor: '#F2F2F2',
-        borderRadius: '10px 10px 0 0',
-        borderBottom: '1px solid #e5e5e5',
+        bgcolor: "#F2F2F2",
+        borderRadius: "10px 10px 0 0",
+        borderBottom: "1px solid #e5e5e5",
       }}
     >
       <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <Typography
-          variant="subtitle2"
-          sx={{ fontWeight: 700, color: 'text.secondary' }}
-        >
+        <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "text.secondary" }}>
           {title}
         </Typography>
         {action}
       </Stack>
     </Box>
-    <CardContent sx={{ minHeight: minH, p: 2 }}>
-      {children}
-    </CardContent>
+    <CardContent sx={{ minHeight: minH, p: `${padding}rem` }}>{children}</CardContent>
   </Card>
-);
+)
 
 const InfoTile = ({
   icon,
@@ -194,10 +191,8 @@ const TMinReview: React.FC = () => {
         fileLocationLabel="Inspection Files Location:"
         fileLocation="K:\BTAREA\BTES\FIXEDEQUIP\Inspection\FS\CLEU\CLEUs\Inspection Planner’s Folder\EOR Folder CLE3L3-T0302"
         onBack={() => navigate("/tmin")}
-        // onNext={() => console.log('Next')}
         onNext={() => navigate("/tmin-docs", { state: { eslId } })}
       >
-        {/* ====== middle content (unchanged) ====== */}
         <Card elevation={0} sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}>
           <CardContent>
             <Typography variant="subtitle2" sx={{ color: "error.main", fontWeight: 700, mb: 1 }}>
@@ -243,18 +238,7 @@ const TMinReview: React.FC = () => {
           <HollowCard
             title="Attachments"
             minH={280}
-            // action={
-            //   <IconButton size="small" color="error" onClick={handleUploadDoc}>
-            //     <NoteAddOutlinedIcon />
-            //   </IconButton>
-            //   <Button component="label" variant="text" startIcon={<NoteAddOutlinedIcon />}>
-            //     <VisuallyHiddenInput
-            //       type="file"
-            //       onChange={handleUploadDoc}
-            //       multiple // Set to true if you want to allow multiple files
-            //     />
-            //   </Button>
-            // }
+            padding={1}
           >
             <Link sx={{ display: "block" }} href="#">
               bpvc_viii-1_u-1a_5.pdf

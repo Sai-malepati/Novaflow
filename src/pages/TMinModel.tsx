@@ -31,7 +31,7 @@ const STEPS: TMinStep[] = [
   { title: "Gathering Details", helper: "Complete", state: "done" },
   { title: "Gathering Documents", helper: "Complete", state: "done" },
   { title: "Data Collection (OCR)", helper: "Complete", state: "done" },
-  { title: "3D Model Generating", state: "active" },
+  { title: "3D Model Generating", helper: "In Progress", state: "active" },
   { title: "T-Min Review", state: "idle" },
   { title: "Generating Report", state: "idle" },
 ];
