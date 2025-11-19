@@ -22,9 +22,9 @@ const steps: TMinStep[] = [
   { title: "Gathering Details", helper: "Complete", state: "done" },
   { title: "Gathering Documents", helper: "In Progress", state: "active" },
   { title: "Data Collection (OCR)", state: "idle" },
-  { title: "3D Model Generating", state: "idle" },
+  { title: "Review Data", state: "idle" },
   { title: "T-Min Review", state: "idle" },
-  { title: "Generating Report", state: "idle" },
+  { title: "Report Generation", state: "idle" },
 ];
 
 const StepNode: React.FC<StepNodeProps> = ({ title, state, index, helper }) => {

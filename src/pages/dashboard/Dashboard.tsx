@@ -1,16 +1,28 @@
-import React, { memo, useEffect, useState } from "react"
-import { Box, Typography, Card, CardContent, Divider, Link as MUILink, Modal, CircularProgress } from "@mui/material"
+import React, { memo, useEffect, useMemo, useState } from "react"
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Divider,
+  Link as MUILink,
+} from "@mui/material"
 import DataTable from "../../components/DataTable"
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
+import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Legend, Bar } from "recharts"
 import MainLayout from "../../components/MainLayout"
 import { UserInfoHeader } from ".././user-info-header/UserInfoHeader"
-import { ProbabilityIcon, CorrosionIcon, DeviationIcon, InspectionIcon, ToolIcon } from "icons"
+import {
+  ProbabilityIcon,
+  CorrosionIcon,
+  DeviationIcon,
+  InspectionIcon,
+  ToolIcon,
+} from "icons"
 import { useGetItemsQuery } from "store/api"
 import { ColumnsType } from "types"
 import { useNavigate } from "react-router-dom"
 import SvgModalAnimator from "components/SvgModalAnimator"
 
-// --- Styles
 const tileCardSx = {
   borderRadius: 2,
   border: "none",
@@ -34,43 +46,40 @@ const tileContentSx = {
 const linkSx = {
   color: "#6D6E71",
   textDecorationColor: "#6D6E71",
-  fontSize: 14,
+  fontSize: 12,
   width: "100%",
   display: "block",
   padding: "4px 0",
   "&:hover": { textDecorationColor: "#28A5DD", color: "#28A5DD" },
 }
 
-// --- Table columns
 const COLUMNS: ColumnsType[] = [
-  { id: "eslid", label: "Task ID", minWidth: 120 },
-  { id: "severityName", label: "Severity" },
-  { id: "assignedDate", label: "Assigned Date" },
-  { id: "dueInDays", label: "Due In Days" },
-  { id: "documentStatusName", label: "Document Status" },
+  { id: "eslid", label: "Task ID", minWidth: 120, sortable: true },
+  { id: "severityName", label: "Severity", sortable: true },
+  { id: "assignedDate", label: "Assigned Date", sortable: true, minWidth: 150 },
+  { id: "deadLineDate", label: "Due Date" },
   { id: "statusName", label: "Status" },
 ]
 
-// --- Chart, Links, Tools (unchanged)
 const CHART_DATA = [
-  { name: "Week 1", value: 10 },
-  { name: "Week 2", value: 15 },
-  { name: "Week 3", value: 20 },
-  { name: "Week 4", value: 30 },
-]
+  { name: "Q1", assigned: 115, completed: 75 },
+  { name: "Q2", assigned: 140, completed: 110 },
+  { name: "Q3", assigned: 100, completed: 75 },
+  { name: "Q4", assigned: 70, completed: 30 },
+];
 
 const REPORT_LINKS = [
-  "Manufacturer Record Book (MRB)",
-  "General arrangement",
-  "Datasheet",
-  "U1A form",
-  "Nameplate details",
+  "ESLs Pending MSP Reviewer",
+  "ESLs Pending Documentation",
+  "Avg. turnaround time",
+  "Weekly/Monthly Executed/",
+  "Rejected/ Closed ESLs",
 ]
 
 const TOOLS = [
-  { label: "Probability of Failure", icon: <ProbabilityIcon /> },
+  { label: "T-Min Documents Library", icon: <ProbabilityIcon /> },
   { label: "Corrosion Rate Calculator", icon: <CorrosionIcon /> },
-  { label: "Standard Deviation Generator", icon: <DeviationIcon /> },
+  { label: "Standard Deviation Calculator", icon: <DeviationIcon /> },
   { label: "Inspection Report Scrapper", icon: <InspectionIcon /> },
   { label: "Tool 5", icon: <ToolIcon /> },
   { label: "Tool 6", icon: <ToolIcon /> },
@@ -91,7 +100,7 @@ export const ReportCard = memo(function ReportCard({
         </Typography>
         <Divider sx={{ mb: 1.5 }} />
         {links.map((text) => (
-          <MUILink href="#" sx={linkSx}>
+          <MUILink key={text} href="#" sx={linkSx} onClick={(e) => e.preventDefault()}>
             {text}
           </MUILink>
         ))}
@@ -102,10 +111,7 @@ export const ReportCard = memo(function ReportCard({
 
 const ToolsGrid = memo(function ToolsGrid() {
   return (
-    <Card
-      elevation={0}
-      sx={{ borderRadius: 2, background: "#fff5f5", border: "1px solid #f3d6d6" }}
-    >
+    <Card elevation={0} sx={{ borderRadius: 2, background: "#fff5f5", border: "1px solid #f3d6d6" }}>
       <CardContent sx={{ p: 2 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5, color: "#333" }}>
           Tools Connected
@@ -150,10 +156,11 @@ const ToolsGrid = memo(function ToolsGrid() {
 })
 
 const Dashboard: React.FC = () => {
-  const { data = [] } = useGetItemsQuery("Esls")
+  const { data = [], isLoading } = useGetItemsQuery("Esls")
   const navigate = useNavigate()
   const [openModal, setOpenModal] = useState(false)
   const [selectedEslId, setSelectedEslId] = useState<string | null>(null)
+
   const handleClick = (value: string) => {
     setSelectedEslId(value)
     setOpenModal(true)
@@ -167,65 +174,227 @@ const Dashboard: React.FC = () => {
       }, 5000)
       return () => clearTimeout(timer)
     }
-  }, [openModal, selectedEslId])
+  }, [openModal, selectedEslId, navigate])
+
+  const rows = useMemo(() => {
+    if (!data) return []
+    if (Array.isArray(data)) return data.map((r) => normalizeRowId(r))
+    return [normalizeRowId(data)]
+  }, [data])
+
+  function normalizeRowId(row: any) {
+    if (!row) return row
+    const normalizedId = row.eslid ?? row.eslId ?? row.taskId ?? row.id ?? null
+    return { ...row, eslid: normalizedId }
+  }
+
+  const tableKey = `table-${rows.length}-${isLoading ? "loading" : "ready"}`
+
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+
+  useEffect(() => {
+    setPage(0)
+  }, [rows.length])
+
+  const paginatedRows = useMemo(() => {
+    const start = page * rowsPerPage
+    return rows.slice(start, start + rowsPerPage)
+  }, [rows, page, rowsPerPage])
+
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    setPage(newPage)
+  }
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const newSize = parseInt(event.target.value, 10)
+    setRowsPerPage(newSize)
+    setPage(0)
+  }
+
+  const chartData = useMemo(() => CHART_DATA, [])
 
   return (
     <MainLayout>
       <Box sx={{ p: 3, pt: "5rem" }}>
         <UserInfoHeader />
+
         <Box
           sx={{
             mb: 2,
             display: "grid",
-            gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" },
+            gridTemplateColumns: { xs: "1fr", lg: "60% 40%" },
             gap: 2,
-            alignItems: "start",
+            alignItems: "stretch",
           }}
         >
-          <DataTable
-            title="Recent ESL Task"
-            columns={COLUMNS}
-            rows={data}
-            showActions={{ view: true }}
-            onClick={handleClick}
+          <Box
+            sx={{
+              bgcolor: "#fff",
+              borderRadius: "10px",
+              boxShadow: 3,
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              width: "100%",
+              maxWidth: "100%",
+              overflow: "hidden",
+              p: 2,
+            }}
           >
-            <Box sx={{ textAlign: "right", p: 2 }}>
-              <MUILink
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  navigate("/tmin")
-                }}
-
-                sx={{ fontSize: 14 }}
+            <Box
+              sx={{
+                flexGrow: 1,
+                width: "100%",
+                maxWidth: "100%",
+                overflowX: "auto",
+              }}
+            >
+              <DataTable
+                key={tableKey}
+                isLoading={isLoading}
+                isPagination={true}
+                rawCount={13}
+                title={
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      width: "100%",
+                    }}
+                  >
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#5A5A5A" }}>
+                      Recent <strong>T-Min ESL Tasks</strong>
+                    </Typography>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 700,
+                        mb: 0.5,
+                        fontSize: "12px",
+                        color: "#5A5A5A",
+                        textAlign: "right",
+                      }}
+                    >
+                      Total completed tasks this month <strong style={{ color: "#4CAF50" }}>12</strong>
+                    </Typography>
+                  </Box>
+                }
+                columns={COLUMNS}
+                rows={data}
+                onClick={handleClick}
               >
-                Detailed view
-              </MUILink>
+                <Box sx={{ textAlign: "right", p: 2 }}>
+                  <MUILink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      navigate("/tmin")
+                    }}
+                    sx={{ fontSize: 14 }}
+                  >
+                    Detailed view
+                  </MUILink>
+                </Box>
+              </DataTable>
             </Box>
-          </DataTable>
 
-          <Box sx={{ mt: 4, width: "100%", borderRadius: "10px", boxShadow: 3, bgcolor: "#fff" }}>
+          </Box>
+
+          <Box
+            sx={{
+              bgcolor: "#fff",
+              borderRadius: "10px",
+              boxShadow: 3,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              height: "100%",
+              width: "100%",
+              maxWidth: "100%",
+              overflow: "hidden",
+              p: 2,
+            }}
+          >
             <Typography
               variant="subtitle1"
-              sx={{ backgroundColor: "#FDF3F3", p: 1, mb: 2, fontWeight: 600 }}
+              sx={{
+                backgroundColor: "#fff5f5",
+                p: 1,
+                mb: 2,
+                fontWeight: 700,
+                color: "#d32f2f",
+              }}
             >
-              Work Report
+              2025 Tasks Status
             </Typography>
-            <ResponsiveContainer width="100%" height={120}>
-              <LineChart data={CHART_DATA}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="value" stroke="#1976d2" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
+
+            <Box
+              sx={{
+                position: "relative",
+                width: "100%",
+                height: 280,
+                backgroundImage: "url('/world-map-light.png')",
+                backgroundRepeat: "no-repeat",
+                backgroundSize: "cover",
+                borderRadius: 2,
+                overflow: "hidden",
+              }}
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
+                  barGap={2}
+                  barCategoryGap="10%"
+                >
+                  <XAxis dataKey="name" />
+                  <YAxis
+                    label={{
+                      value: "Number of Assigned Tasks",
+                      angle: -90,
+                      position: "insideLeft", // keep it inside
+                      offset: 20, // small fine-tune
+                      dy: 80,
+                      style: { fontSize: 12, fill: "#555" },
+                    }}
+                    tickMargin={15} // adds space between label and graph area
+                    width={80} // adds total Y-axis width (creates gap before bars)
+                  />
+
+                  <Tooltip />
+                  {/* Legend moved below the chart */}
+                  <Legend
+                    verticalAlign="bottom"
+                    align="center"
+                    wrapperStyle={{
+                      paddingTop: "10px",
+                    }}
+                  />
+                  <Bar
+                    dataKey="assigned"
+                    name="Assigned Tasks"
+                    fill="#1976d2"
+                    radius={[4, 4, 0, 0]}
+                    barSize={25} // reduced bar width
+                  />
+                  <Bar
+                    dataKey="completed"
+                    name="Completed Tasks"
+                    fill="#388e3c"
+                    radius={[4, 4, 0, 0]}
+                    barSize={25} // reduced bar width
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
+
             <Box
               sx={{
                 mt: 2,
-                px: 2,
-                pb: 2,
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                gridTemplateColumns: "repeat(2, 1fr)",
                 gap: 2,
               }}
             >
@@ -233,38 +402,11 @@ const Dashboard: React.FC = () => {
               <ReportCard title="Monthly Report" links={REPORT_LINKS} />
             </Box>
           </Box>
+
         </Box>
+
         <ToolsGrid />
-        <Modal open={openModal} onClose={() => setOpenModal(false)}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              bgcolor: "background.paper",
-              p: 4,
-              borderRadius: 2,
-              boxShadow: 24,
-              textAlign: "center",
-              width: 300,
-            }}
-          >
-            <Typography variant="h6">ESL ID: {selectedEslId}</Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              Redirecting to review...
-            </Typography>
-            <Box sx={{ mt: 2 }}>
-              <SvgModalAnimator
-                open={openModal}
-                onClose={() => setOpenModal(false)}
-                selectedEslId={selectedEslId}
-                frameInterval={400}
-              />
-            </Box>
-            <CircularProgress sx={{ mt: 2 }} />
-          </Box>
-        </Modal>
+
       </Box>
     </MainLayout>
   )

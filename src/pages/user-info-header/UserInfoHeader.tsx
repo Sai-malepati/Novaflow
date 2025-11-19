@@ -12,7 +12,7 @@ export const UserInfoHeader = () => {
         color,
       }: {
         title: string;
-        value: number;
+        value: string;
         color: string;
       }) => {
         return (
@@ -97,7 +97,7 @@ return (
     <Grid container spacing={2}>
       {status.map((stat, i) => (
         <Box sx={{ display: "flex", gap: 2 }} key={i}>
-          <StatCard title={stat.label} value={27} color={stat.color} />
+          <StatCard title={stat.label} value={stat.value} color={stat.color} />
         </Box>
       ))}
     </Grid>

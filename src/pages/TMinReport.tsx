@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {
   Box,
   Card,
@@ -19,25 +19,39 @@ import LaunchOutlinedIcon from "@mui/icons-material/LaunchOutlined";
 
 import MainLayout from "../components/MainLayout";
 import TMinScaffold, { TMinStep } from "../components/TMinScaffold";
+import { useCreateItemMutation} from "store/api"
 
 const STEPS_COMPLETE: TMinStep[] = [
   { title: "Gathering Details", helper: "Complete", state: "done" },
   { title: "Gathering Documents", helper: "Complete", state: "done" },
   { title: "Data Collection (OCR)", helper: "Complete", state: "done" },
-  { title: "3D Model Generating", helper: "Complete", state: "done" },
+  { title: "Review Data", helper: "Complete", state: "done" },
   { title: "T-Min Review", helper: "Complete", state: "done" },
-  { title: "Generating Report", helper: "Complete", state: "done" },
+  { title: "Report Generation", helper: "Complete", state: "done" },
 ];
 
+
+ 
+
 const tiles = [
-  { icon: <span>🏷️</span>, label: "Equipment Tag", value: "CLE3L3-T0302" },
+  { 
+    
+    // icon: <span>🏷️</span>, 
+    label: "Equipment Tag", 
+    value: "CLE3L3-T0302" },
   {
-    icon: <span>📄</span>,
+    // icon: <span>📄</span>,
     label: "Process Description",
     value: "Pressure Vessel",
   },
-  { icon: <span>👥</span>, label: "Business Team", value: "CLEUS" },
-  { icon: <span>🏭</span>, label: "Unit", value: "CLEU3" },
+  { 
+    // icon: <span>👥</span>,
+     label: "Business Team",
+      value: "CLEUS" },
+  {
+    //  icon: <span>🏭</span>,
+     label: "Unit", 
+     value: "CLEU3" },
 ];
 
 const SectionTitle: React.FC<React.PropsWithChildren> = ({ children }) => (
@@ -59,12 +73,31 @@ const SectionTitle: React.FC<React.PropsWithChildren> = ({ children }) => (
 );
 
 const TMinReport: React.FC = () => {
-  const eslId = "107011";
+  // const eslId = "107011";
+
+   const eslDataSession = sessionStorage?.getItem("eslData") || ""
+  const eslData = JSON.parse(eslDataSession) 
+
+
+   const [createItem, isLoading] = useCreateItemMutation()
+
+  const onClickDowload = async () => {
+    const blob:any = await createItem({ endpoint: 'OpentextSource/downloadfile/opentext', body: { fileName: "TminReport.pdf", localPath: 'string' } })
+    console.log('blob', blob);
+   const url = window.URL.createObjectURL(blob?.data);
+  //  console.log('blob?.data', blob?.data);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "ML12102A204.pdf"; // you can parse from Content-Disposition if neededdocument.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  }
 
   return (
     <MainLayout>
       <TMinScaffold
-        eslId={eslId}
+        eslId= {eslData?.eslid}
         sapId="10819961"
         assignedDate="30/07/2025"
         timeRemaining="2 Days"
@@ -116,8 +149,8 @@ const TMinReport: React.FC = () => {
                   <LaunchOutlinedIcon fontSize="small" />
                 </IconButton>
                 {/* download */}
-                <IconButton size="small" title="Download">
-                  <DownloadOutlinedIcon fontSize="small" />
+                <IconButton size="small" title="Download" onClick = {onClickDowload}>
+                  <DownloadOutlinedIcon fontSize="small"  />
                 </IconButton>
                 <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
                 {/* delete */}
@@ -131,21 +164,21 @@ const TMinReport: React.FC = () => {
               </Stack>
             </Paper>
 
-            <Stack
+            {/* <Stack
               direction="row"
               justifyContent="flex-end"
               spacing={1.25}
               sx={{ mt: 2 }}
-            >
-              <Button
+            > */}
+              {/* <Button
                 variant="outlined"
                 color="error"
                 onClick={() => window.history.back()}
                 sx={{ textTransform: "none" }}
               >
                 Back to List
-              </Button>
-            </Stack>
+              </Button> */}
+            {/* </Stack> */}
           </CardContent>
         </Card>
       </TMinScaffold>
@@ -154,3 +187,5 @@ const TMinReport: React.FC = () => {
 };
 
 export default TMinReport;
+
+

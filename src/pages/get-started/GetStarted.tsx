@@ -1,14 +1,18 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { Link as RouterLink } from "react-router-dom"
-import { Box, Typography, Button } from "@mui/material"
+import { Box, Typography, Button, Link } from "@mui/material"
 import Layout from "../../components/MainLayout"
-import landingImage from "../../static/images/getstarted_bg_img.png" // replace with actual path
-
-const Landing: React.FC = () => {
+import landingImage from "../../static/images/getstarted_bg_img1.png"
+import Cookies from "js-cookie"
+ 
+const GetStarted: React.FC = () => {
+useEffect(() =>{
+Cookies.set('workflow', JSON.stringify({tmin: true, prv: false, hitLeak: false}))
+  },[])
   return (
     <Layout hideSidebar>
       <Box
-        height={"100vh"}
+        height="100vh"
         sx={{
           backgroundImage: `url(${landingImage})`,
           backgroundRepeat: "no-repeat",
@@ -17,16 +21,19 @@ const Landing: React.FC = () => {
           backgroundAttachment: "fixed",
         }}
       >
-        {/* Left Content */}
         <Box
           maxWidth={650}
           sx={{
             backgroundColor: "rgb(244 244 244 / 80%)",
             height: "100vh",
             position: "relative",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
           }}
         >
-          <Box sx={{position: "absolute", top: "50%", transform: 'translatey(-50%)', right: 0, px: 6}}>
+          {/* Center hero */}
+          <Box sx={{ position: "relative", top: "50%", transform: "translateY(-50%)", px: 6 }}>
             <Typography
               variant="h4"
               fontWeight={300}
@@ -61,10 +68,51 @@ const Landing: React.FC = () => {
               Get Started
             </Button>
           </Box>
+      <Box sx={{ textAlign: "right", px: 12, py: 5 }}>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              New User?{" "}
+              <Box component="span" fontWeight="bold">
+                Register here
+              </Box>
+            </Typography>
+ 
+            <Button
+              component={RouterLink}
+              to="register"
+              variant="outlined"
+              color="error"
+              sx={{
+                mb: 2,
+                px: 4,
+                py: 0.8,
+                textTransform: "none",
+                borderWidth: 1.5,
+                "&:hover": { borderWidth: 1.5, backgroundColor: "rgba(239,0,43,0.08)" },
+              }}
+            >
+              Register
+            </Button>
+ 
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem" }}>
+              Having trouble in logging in?{" "}
+              <Link
+                component={RouterLink}
+                to="/raise-ticket"
+                sx={{
+                  color: "error.main",
+                  fontWeight: 500,
+                  textDecoration: "underline",
+                  "&:hover": { color: "#b71c1c" },
+                }}
+              >
+                Raise a ticket
+              </Link>
+            </Typography>
+          </Box>
         </Box>
       </Box>
     </Layout>
   )
 }
-
-export default Landing
+ 
+export default GetStarted

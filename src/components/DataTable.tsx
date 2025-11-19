@@ -1,4 +1,4 @@
-import React, { Children, JSX, useState } from 'react';
+import React, { JSX, useState } from 'react';
 import {
   Box,
   Typography,
@@ -14,6 +14,7 @@ import {
   IconButton,
   TableSortLabel,
   Link as MUILink,
+  Skeleton,
 } from "@mui/material"
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -31,12 +32,10 @@ type Column = {
   sortable?: boolean;
 };
 type Order = 'asc' | 'desc';
-type Row = {
-  [key: string]: string | number;
-};
+type Row = { [key: string]: string | number };
 
 interface DataTableProps {
-  title?: string
+  title?: string | React.ReactNode
   columns: Column[]
   rows: Row[]
   sourceLink?: string
@@ -51,7 +50,9 @@ interface DataTableProps {
   onDelete?: (row: Row) => void
   isSearchable?: boolean
   isPagination?: boolean
+  rawCount?: number
   onClick?: (value: string) => void
+  isLoading?: boolean
   children?: JSX.Element | JSX.Element[]
 }
 
@@ -68,24 +69,23 @@ const DataTable: React.FC<DataTableProps> = ({
   onClick,
   isSearchable = false,
   isPagination = false,
+  isLoading = false,
+  rawCount = 6,
   children,
 }) => {
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [rowsPerPage, setRowsPerPage] = useState(rawCount)
   const [search, setSearch] = useState("")
   const [orderBy, setOrderBy] = useState<string | number>("")
   const [order, setOrder] = useState<Order>("asc")
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const skeletonRowsCount = rawCount;
 
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage)
-  }
-
+  const handleChangePage = (_: unknown, newPage: number) => setPage(newPage)
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
-
   const handleSort = (columnId: string | number) => {
     const isAsc = orderBy === columnId && order === "asc"
     setOrder(isAsc ? "desc" : "asc")
@@ -100,71 +100,81 @@ const DataTable: React.FC<DataTableProps> = ({
     if (aValue > bValue) return order === "asc" ? 1 : -1
     return 0
   })
-  const filteredRows = sortedRows.filter((row) => {
-    return Object.values(row).join(" ").toLowerCase().includes(search.toLowerCase())
-  })
+
+  const filteredRows = sortedRows.filter((row) =>
+    Object.values(row).join(" ").toLowerCase().includes(search.toLowerCase())
+  )
+
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case "Critical":
-        return "red"
-      case "High":
-        return "orange"
-      case "Medium":
-        return "purple"
-      case "Low":
-        return "blue"
-      default:
-        return "inherit"
+      case "Critical": return "red"
+      case "High": return "orange"
+      case "Medium": return "purple"
+      case "Low": return "blue"
+      default: return "inherit"
     }
   }
 
-  const getStatusColor = (status: string) => {
-    if (status.includes("Inprogress")) return "orange"
-    if (status.includes("New Task")) return "blue"
-    if (status.includes("MSP Review Completed")) return "green"
-    if (status.includes("Under MSP review")) return "red"
+  const getDueColor = (value: string | number) => {
+    const n = Number(value)
+    if (n === 0 || n === 1) return "#D5010B"   
+    if (n === 2) return "#FF9800"
+    if (n === 3 || n === 5) return "#4CAF50"  
     return "inherit"
   }
 
+  const getStatusColor = (status: string) => {
+    if (status.includes("In Progress")) return "orange"          
+    if (status.includes("New Task")) return "blue"
+    if (status.includes("MSP Review Completed")) return "green"
+    if (status.includes("Under MSP review")) return "#0087a1"
+    if (status.includes("High")) return "#FF9800"
+    if (status.includes("Critical")) return "#D5010B"
+    if (status.includes("Insufficient Data")) return "#FF9800"
+    if (status.includes("Sufficient Data")) return "#03A9F4"
+    if (status.includes("Completed")) return "#4CAF50"
+    if (status.includes("Received Data")) return "#4CAF50"
+
+    return "#5A5A5A"
+  }
+
+  const getEslHealthStatus = (status: string) => {
+    if (status.includes("All Okay")) return "#4CAF50"
+    if (status.includes("Missing Documents")) return "#D5010B"
+    if (status.includes("Overdue")) return "#FF9800"
+    return "#5A5A5A"
+  }
+
   const renderSortIcons = (): JSX.Element => (
-    <Box sx={{ display: "flex", flexDirection: "row", ml: 1 }}>
+    <Box sx={{ display: "flex", flexDirection: "row", ml: 1, gap: 1 }}>
       <ArrowsIcon />
-      <SortingOrderIcon />
+      {/* <SortingOrderIcon /> */}
     </Box>
   )
 
   return (
     <Paper elevation={0} sx={{ width: "100%", overflow: "hidden" }}>
-      {/* 🔹 Header */}
+      {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center" px={1} py={1}>
-        <Typography variant="subtitle2" fontSize="14px" color="#5A5A5A" fontWeight={600}>
+        <Typography width="100%" variant="subtitle2" fontSize="13px" color="#5A5A5A" fontWeight={600}>
           {title}
         </Typography>
-        {isSearchable ? (
+        {isSearchable && (
           <Box display="flex" alignItems="center" gap={1}>
             <TextField
               size="small"
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              InputProps={{
-                endAdornment: <SearchIcon fontSize="small" color="action" />,
-              }}
+              InputProps={{ endAdornment: <SearchIcon fontSize="small" color="action" /> }}
             />
           </Box>
-        ) : null}
+        )}
       </Box>
 
-      {/* 🔹 Table */}
-      <Box
-        sx={{
-          boxShadow: 3,
-          border: "1px solid #ccc;",
-          borderRadius: "10px;",
-          paddingBottom: "5px",
-        }}
-      >
-        <TableContainer sx={{ maxHeight: 440, borderRadius: "10px;" }}>
+      {/* Table */}
+      <Box sx={{ boxShadow: 3, border: "1px solid #ccc;", borderRadius: "10px;", paddingBottom: "5px" }}>
+        <TableContainer sx={{ maxHeight: "65vh", borderRadius: "10px;" }}>
           <Table stickyHeader>
             <TableHead>
               <TableRow>
@@ -174,9 +184,9 @@ const DataTable: React.FC<DataTableProps> = ({
                     align={column.align || "left"}
                     sx={{
                       fontWeight: "bold",
-                      fontSize: "0.85rem",
+                      fontSize: "0.75rem",
                       backgroundColor: "#FDF3F3",
-                      padding: "8px 16px",
+                      padding: "1.5rem",
                       minWidth: column.minWidth || 100,
                       cursor: column.sortable ? "pointer" : "default",
                       lineHeight: "1",
@@ -190,6 +200,7 @@ const DataTable: React.FC<DataTableProps> = ({
                         onClick={() => handleSort(column.id)}
                         hideSortIcon={false}
                         IconComponent={renderSortIcons}
+                        sx={{ fontSize: "0.85rem" }}
                       >
                         {column.label}
                       </TableSortLabel>
@@ -198,7 +209,7 @@ const DataTable: React.FC<DataTableProps> = ({
                     )}
                   </TableCell>
                 ))}
-                {showActions.view || showActions.edit || showActions.delete ? (
+                {(showActions.view || showActions.edit || showActions.delete) && (
                   <TableCell
                     sx={{
                       fontWeight: "bold",
@@ -213,107 +224,178 @@ const DataTable: React.FC<DataTableProps> = ({
                   >
                     Actions
                   </TableCell>
-                ) : null}
+                )}
               </TableRow>
             </TableHead>
+
             <TableBody>
-              {filteredRows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, i) => (
+              {isLoading
+                ? Array.from({ length: skeletonRowsCount }).map((_, i) => (
                   <TableRow key={i}>
-                    {columns.map((column) => {
-                      const value = row[column.id]
-                      if (sourceLink && column.id === sourceLink) {
-                        return (
-                          <TableCell key={column.id}>
-                            <MUILink
-                              sx={{ cursor: "pointer", color: "#6D6E71" }}
-                              onClick={() => onClick?.(value.toString())}
-                              underline="none"
-                            >
-                              {value}
-                            </MUILink>
-                          </TableCell>
-                        )
-                      }
-
-                      if (column.id === "Severity") {
-                        return (
-                          <TableCell
-                            key={column.id}
-                            sx={{
-                              color: getSeverityColor(String(value)),
-                              fontWeight: 600,
-                              padding: "8px",
-                              lineHeight: "1 !important",
-                            }}
-                          >
-                            {value}
-                          </TableCell>
-                        )
-                      }
-                      if (column.id === "statusName") {
-                        return (
-                          <TableCell
-                            key={column.id}
-                            sx={{
-                              color: getStatusColor(String(value)),
-                              fontWeight: 600,
-                              padding: "8px",
-                              lineHeight: "1 !important",
-                            }}
-                          >
-                            {value}
-                          </TableCell>
-                        )
-                      }
-                      return (
-                        <TableCell key={column.id} sx={{ padding: "8px" }}>
-                          {value}
-                        </TableCell>
-                      )
-                    })}
-
-                    {/* 🔹 Actions */}
+                    {columns.map((col) => (
+                      <TableCell key={col.id}>
+                        <Skeleton variant="text" width="80%" height={20} />
+                      </TableCell>
+                    ))}
                     {(showActions.view || showActions.edit || showActions.delete) && (
-                      <TableCell
-                        align="center"
-                        sx={(theme) => ({
-                          position: "sticky",
-                          right: 0,
-                          zIndex: 2,
-                          padding: "8px",
-                          backgroundColor: theme.palette.background.paper,
-                        })}
-                      >
+                      <TableCell align="center">
                         <Box display="flex" justifyContent="center" gap={1}>
-                          {showActions.view && (
-                            <IconButton onClick={() => onView?.(row)}>
-                              <VisibilityIcon fontSize="small" />
-                            </IconButton>
-                          )}
-                          {showActions.edit && (
-                            <IconButton onClick={() => onEdit?.(row)}>
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          )}
-                          {showActions.delete && (
-                            <IconButton onClick={() => onDelete?.(row)}>
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          )}
+                          <Skeleton variant="circular" width={24} height={24} />
+                          <Skeleton variant="circular" width={24} height={24} />
+                          <Skeleton variant="circular" width={24} height={24} />
                         </Box>
                       </TableCell>
                     )}
                   </TableRow>
-                ))}
+                ))
+                : filteredRows
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, i) => (
+                    <TableRow  key={i}>
+                      {columns.map((column) => {
+                        const value = row[column.id];
+
+                        // link cell
+                        if (sourceLink && column.id === sourceLink) {
+                          return (
+                            <TableCell sx = {{padding:'2rem'}} key={column.id}>
+                              <MUILink
+                                sx={{ cursor: "pointer", color: "#1976d2" }}
+                                onClick={() => onClick?.(value.toString())}
+                                underline="none"
+                              >
+                                {value}
+                              </MUILink>
+                            </TableCell>
+                          );
+                        }
+
+                        // Severity cell
+                        if (column.id === "severityName" || column.id === "Severity") {
+                          return (
+                            <TableCell
+                              key={column.id}
+                              sx={{
+                                color: getSeverityColor(String(value)),
+                                fontWeight: 600,
+                                padding: "2rem",
+                                lineHeight: "1 !important",
+
+                              }}
+                            >
+                              {value}
+                            </TableCell>
+                          );
+                        }
+                        if (column.id === "dueInDays") {
+                          return (
+                            <TableCell
+                              key={column.id}
+                              sx={{
+                                color: getDueColor(value),
+                                fontWeight: 700,
+                                padding: "2rem",
+                                lineHeight: "1 !important",
+                              }}
+                            >
+                              {value}
+                            </TableCell>
+                          );
+                        }
+
+                        if (column.id === "documentStatusName") {
+                          return (
+                            <TableCell
+                              key={column.id}
+                              sx={{
+                                color: getStatusColor(String(value)),
+                                fontWeight: 600,
+                                padding: "2rem",
+                                lineHeight: "1 !important",
+                              }}
+                            >
+                              {value}
+                            </TableCell>
+                          );
+                        }
+                        
+                        if (column.id === "statusName") {
+                          return (
+                            <TableCell
+                              key={column.id}
+                              sx={{
+                                color: getStatusColor(String(value)),
+                                fontWeight: 600,
+                                padding: "2rem",
+                                lineHeight: "1 !important",
+                              }}
+                            >
+                              {value}
+                            </TableCell>
+                          );
+                        }
+                        
+                        if (column.id === "eslHealth") {
+                            return (
+                              <TableCell
+                                key={column.id}
+                                sx={{
+                                  color: getEslHealthStatus(String(value)),
+                                  fontWeight: 600,
+                                  padding: "2rem",
+                                  lineHeight: "1 !important",
+                                }}
+                              >
+                                {value}
+                              </TableCell>
+                            )
+                          }
+                        return (
+                          <TableCell key={column.id} sx={{ padding: "2rem", lineHeight: "1 !important" }}>
+                            {value}
+                          </TableCell>
+                        );
+                      })}
+
+                      {(showActions.view || showActions.edit || showActions.delete) && (
+                        <TableCell
+                          align="center"
+                          sx={(theme) => ({
+                            position: "sticky",
+                            right: 0,
+                            zIndex: 2,
+                            padding: "2rem",
+                            backgroundColor: theme.palette.background.paper,
+                          })}
+                        >
+                          <Box display="flex" justifyContent="center" gap={1}>
+                            {showActions.view && (
+                              <IconButton onClick={() => onView?.(row)}>
+                                <VisibilityIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                            {showActions.edit && (
+                              <IconButton onClick={() => onEdit?.(row)}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                            {showActions.delete && (
+                              <IconButton onClick={() => onDelete?.(row)}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                          </Box>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
             </TableBody>
           </Table>
         </TableContainer>
+
         <Box>{children}</Box>
 
-        {/* 🔹 Pagination */}
-        {isPagination && filteredRows.length > rowsPerPage ? (
+        {isPagination  && (
           <TablePagination
             rowsPerPageOptions={[10, 25, 50, 100]}
             component="div"
@@ -324,7 +406,7 @@ const DataTable: React.FC<DataTableProps> = ({
             onRowsPerPageChange={handleChangeRowsPerPage}
             sx={{ borderTop: "1px solid #ddd" }}
           />
-        ) : null}
+        )}
       </Box>
     </Paper>
   )
