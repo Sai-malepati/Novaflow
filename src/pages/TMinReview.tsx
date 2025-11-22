@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import {
   Alert,
   Box,
@@ -12,25 +12,34 @@ import {
   Stack,
   Tooltip,
   Typography,
-} from '@mui/material';
+  TooltipProps,
+  tooltipClasses,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  CircularProgress,
+} from "@mui/material"
 import { styled } from "@mui/material/styles"
-import MainLayout from '../components/MainLayout';
-import TMinScaffold, { TMinStep } from '../components/TMinScaffold';
-import { useLocation, useNavigate } from 'react-router-dom';
+import MainLayout from "../components/MainLayout"
+import TMinScaffold, { TMinStep } from "../components/TMinScaffold"
+import { useLocation, useNavigate } from "react-router-dom"
 
-import NoteAddOutlinedIcon from '@mui/icons-material/NoteAddOutlined';
-import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
-import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
-import { useCreateItemMutation } from 'store/api';
+import { useCreateItemMutation } from "store/api"
+import DownloadIcon from "../icons/DownloadIcon"
+import InfoIcon from "../icons/InfoIcon"
+import PopupDialog from "components/PopupDialog"
+import CloseIcon from "@mui/icons-material/Close"
+import pipeImg from '../static/images/pipe.png';
 
 const steps: TMinStep[] = [
   { title: "Gathering Details", helper: "Complete", state: "done" },
   { title: "Gathering Documents", helper: "In Progress", state: "active" },
   { title: "Data Collection (OCR)", state: "idle" },
-  { title: "3D Model Generating", state: "idle" },
+  { title: "Review Data", state: "idle" },
   { title: "T-Min Review", state: "idle" },
-  { title: "Generating Report", state: "idle" },
-];
+  { title: "Report Generation", state: "idle" },
+]
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -43,25 +52,24 @@ const VisuallyHiddenInput = styled("input")({
   whiteSpace: "nowrap",
   width: 1,
 })
-/* ---- small local cards reused on this page ---- */
+
 const HollowCard = ({
   title,
   action,
-  minH = 260,
   children,
-  padding = 0,
+  padding,
+  cardContentPad,
 }: {
   title: string
   action?: React.ReactNode
-  minH?: number
   children?: React.ReactNode
-  padding?: number
+  padding?: number | string,
+  cardContentPad?: number,
 }) => (
   <Card variant="outlined" sx={{ borderRadius: 2 }}>
     <Box
       sx={{
-        px: 1.5,
-        py: 1,
+        p: padding,
         bgcolor: "#F2F2F2",
         borderRadius: "10px 10px 0 0",
         borderBottom: "1px solid #e5e5e5",
@@ -74,9 +82,71 @@ const HollowCard = ({
         {action}
       </Stack>
     </Box>
-    <CardContent sx={{ minHeight: minH, p: `${padding}rem` }}>{children}</CardContent>
+    <CardContent sx={{ height: "100%", p: `${cardContentPad || 0}rem` }}>{children}</CardContent>
   </Card>
 )
+
+// const InfoTile = ({
+//    icon,
+//   label,
+//   value,
+// }: {
+//    icon: React.ReactNode
+//   label: string
+//   value: string
+// }) => (
+//   <Paper
+//     variant="outlined"
+//     sx={{
+//       p: 1.5,
+//       borderRadius: 2,
+//       borderColor: "#EFEFEF",
+//       boxShadow: "none",
+//       display: "flex",
+//       alignItems: "center",
+//       gap: 1.25,
+//       minHeight: 66,
+//     }}
+//   >
+//     <Box sx={{ color: "error.main", display: "grid", placeItems: "center" }}>{icon}</Box>
+//     <Box sx={{ minWidth: 0 }}>
+//       <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary" }}>
+//         {label}
+//       </Typography>
+//       <Typography
+//         variant="body2"
+//         sx={{
+//           fontWeight: 600,
+//           color: "text.secondary",
+//           lineHeight: 1.2,
+//           mt: 0.25,
+//           whiteSpace: "nowrap",
+//           overflow: "hidden",
+//           textOverflow: "ellipsis",
+//         }}
+//         title={value}
+//       >
+//         {value}
+//       </Typography>
+//     </Box>
+//   </Paper>
+// )
+
+const InfoToolTip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} arrow classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: "#FFF",
+    color: "#28A5DD",
+    boxShadow: "1px 1px 5px #CCC",
+    width: "15rem",
+    padding: '1rem',
+    fontSize: '12px',
+  },
+  [`& .${tooltipClasses.arrow}`]: {
+    display: "none",
+  },
+}));
 
 const InfoTile = ({
   icon,
@@ -88,38 +158,42 @@ const InfoTile = ({
   value: string;
 }) => (
   <Paper
-    variant="outlined"
+    elevation={0}
     sx={{
       p: 1.5,
       borderRadius: 2,
-      borderColor: '#EFEFEF',
-      boxShadow: 'none',
-      display: 'flex',
-      alignItems: 'center',
+      border: "none",
+      boxShadow: "none",
+      display: "flex",
+      alignItems: "center",
       gap: 1.25,
       minHeight: 66,
+      backgroundColor: "#fff",
     }}
   >
-    <Box sx={{ color: 'error.main', display: 'grid', placeItems: 'center' }}>
+    <Box sx={{ color: "error.main", display: "grid", placeItems: "center" }}>
       {icon}
     </Box>
+
     <Box sx={{ minWidth: 0 }}>
+      {/* Label (Key) */}
       <Typography
         variant="caption"
-        sx={{ fontWeight: 800, color: 'text.secondary' }}
+        sx={{ fontWeight: 700, color: "text.primary", mb: 0.5 }}
       >
         {label}
       </Typography>
+
+      {/* Value (Lighter font, subtle) */}
       <Typography
         variant="body2"
         sx={{
-          fontWeight: 600,
-          color: 'text.secondary',
-          lineHeight: 1.2,
-          mt: 0.25,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
+          fontWeight: 400,
+          color: "text.secondary",
+          lineHeight: 1.3,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
         }}
         title={value}
       >
@@ -129,69 +203,121 @@ const InfoTile = ({
   </Paper>
 );
 
-/* ---- page ---- */
 const TMinReview: React.FC = () => {
-  const navigate = useNavigate();
-  const { state } = useLocation() as { state?: { eslId?: string } };
-  const eslId = state?.eslId || '107011';
-  const [createItem] = useCreateItemMutation();
-  const handleUploadDoc = async (event: any) => {
-    const file = event.target.files?.[0];
-    file && await createItem({
-      endpoint: `OpentextSource/U1AFormTMinCalculation?fileName=${file.name}`,
-      body: JSON.stringify({
-        fileName: file.name,
-      }),
-    })
+  const navigate = useNavigate()
+  const location = useLocation();
+  // const eslData = (location.state as { eslData?: any })?.eslData;
+
+  const eslDataSession = sessionStorage?.getItem("eslData") || ""
+  const eslData = JSON.parse(eslDataSession)
+
+  const eslId = eslData?.eslid;
+  const assignedDate = new Date(eslData?.assignedDate).toLocaleDateString();
+  const site = eslData?.site;
+
+  const dueInDays = eslData?.dueInDays + " Days";
+
+
+  const [createItem, loader] = useCreateItemMutation()
+  console.log('isLoading', loader);
+  useEffect(() => {
+    const fetchAndUploadFile = async () => {
+      try {
+        const url = `https://novaflowdocumentservice-axhseggmeeffgjc2.centralindia-01.azurewebsites.net/api/OpentextSource/GetfilefromOpentextAndUploadtoDatalake?EslId=${eslId}`;
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`Failed to call API: ${response.statusText}`);
+        }
+
+      const result = await response.json(); // or response.text() based on API response type
+
+    } catch (error) {
+      console.error("Error in API call:", error);
+    }
+  };
+
+  if (eslId) {  // only call if eslId exists
+    fetchAndUploadFile();
   }
+}, [eslId]);
+
 
   // MSP Notepad
-  const [note, setNote] = useState('');
-  const [hoveringNotePad, setHoveringNotePad] = useState(false);
-  const [savedOpen, setSavedOpen] = useState(false);
-  const noteRef = useRef<HTMLTextAreaElement | null>(null);
+  const [note, setNote] = useState("")
+  const [hoveringNotePad, setHoveringNotePad] = useState(false)
+  const [savedOpen, setSavedOpen] = useState(false)
+  const noteRef = useRef<HTMLTextAreaElement | null>(null)
+ 
+  const openSuccess = useMemo(() => {
+   
+    return loader.isSuccess;
 
-  const saveNote = () => {
-    if (!note.trim()) return;
-    const content = note.replace(/\n/g, '\r\n');
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `MSP_Note_ESL_${eslId}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    setSavedOpen(true);
-  };
+  },[loader.isSuccess])
+   console.log('openSuccess', openSuccess);
+  const saveNote = async () => {
+    if (!note.trim()) return
+    await createItem({ endpoint: "Esls", method: "PUT", body: { id: eslData?.id, eslid: eslId, comments: note } })
+   
+
+  
+
+    // const content = note.replace(/\n/g, "\r\n")
+
+    // const blob = new Blob([content], { type: "text/plain;charset=utf-8" })
+    // const url = URL.createObjectURL(blob)
+    // const a = document.createElement("a")
+    // a.href = url
+    // a.download = `MSP_Note_ESL_${eslId}.txt`
+    // document.body.appendChild(a)
+    // a.click()
+    // a.remove()
+    // URL.revokeObjectURL(url)
+    // setSavedOpen(true)
+  }
   const clearNote = () => {
-    setNote('');
-    requestAnimationFrame(() => noteRef.current?.focus());
-  };
+    setNote("")
+    requestAnimationFrame(() => noteRef.current?.focus())
+  }
 
   const steps: TMinStep[] = [
-    { title: 'Gathering Details', helper: 'Complete', state: 'done' },
-    { title: 'Gathering Documents', helper: 'In Progress', state: 'active' },
-    { title: 'Data Collection (OCR)', state: 'idle' },
-    { title: '3D Model Generating', state: 'idle' },
-    { title: 'T-Min Review', state: 'idle' },
-    { title: 'Generating Report', state: 'idle' },
-  ];
+    { title: "Gathering Details", helper: "Complete", state: "done" },
+    { title: "Gathering Documents", helper: "In Progress", state: "active" },
+    { title: "Data Collection (OCR)", state: "idle" },
+    { title: "Review Data", state: "idle" },
+    { title: "T-Min Review", state: "idle" },
+    { title: "Report Generation", state: "idle" },
+  ]
+
+  const [openPreview, setOpenPreview] = useState(false)
+  const [previewFile, setPreviewFile] = useState<string | null>(null)
+  const [previewTitle, setPreviewTitle] = useState<string>("")
+
+  const handleOpenPreview = (title: string) => {
+    setPreviewTitle(title)
+    setPreviewFile(pipeImg)
+    setOpenPreview(true)
+  }
+
+  const handleClosePreview = () => {
+    setOpenPreview(false)
+    setPreviewFile(null)
+  }
 
   return (
     <MainLayout>
       <TMinScaffold
         eslId={eslId}
         sapId="10819961"
-        assignedDate="30/07/2025"
-        timeRemaining="2 Days"
-        site="Baytown"
+        assignedDate={assignedDate}
+        timeRemaining={dueInDays}
+         site={site}
         steps={steps}
         fileLocationLabel="Inspection Files Location:"
         fileLocation="K:\BTAREA\BTES\FIXEDEQUIP\Inspection\FS\CLEU\CLEUs\Inspection Planner’s Folder\EOR Folder CLE3L3-T0302"
         onBack={() => navigate("/tmin")}
-        onNext={() => navigate("/tmin-docs", { state: { eslId } })}
+        onNext={() => navigate("/tmin-docs", { state: { eslData } })}
       >
         <Card elevation={0} sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}>
           <CardContent>
@@ -211,17 +337,32 @@ const TMinReview: React.FC = () => {
                 gap: 1.25,
               }}
             >
-              {/* Replace with your real tiles as needed */}
-              <InfoTile icon={<span>🏷️</span>} label="Equipment Tag" value="CLE3L3-T0302" />
-              <InfoTile icon={<span>🛠️</span>} label="Equipment Type" value="Pressure Vessel" />
               <InfoTile
-                icon={<span>📈</span>}
+                //  icon={<span>🏷️</span>} 
+                label="Equipment Tag"
+                value={eslData?.equipmentTag} />
+
+              <InfoTile
+                // icon={<span>🛠️</span>} 
+                label="Equipment Type"
+                value={eslData?.equipmentTypeName} />
+              <InfoTile
+                // icon={<span>📈</span>}
                 label="Thickness Status"
                 value="Vessel - Above IDM RL"
               />
-              <InfoTile icon={<span>👥</span>} label="Business Team" value="CLEUS" />
-              <InfoTile icon={<span>🪪</span>} label="Site Inspector" value="Akshay Mahto" />
-              <InfoTile icon={<span>🏭</span>} label="Unit" value="CLEU3" />
+              <InfoTile
+                // icon={<span>👥</span>} 
+                label="Business Team"
+                value={eslData?.businessTeamName} />
+              <InfoTile
+                // icon={<span>🪪</span>} 
+                label="Site Inspector"
+                value={eslData?.siteInspector} />
+              <InfoTile
+                // icon={<span>🏭</span>}
+                label="Unit"
+                value={eslData?.unitName} />
             </Box>
           </CardContent>
         </Card>
@@ -233,38 +374,100 @@ const TMinReview: React.FC = () => {
             gap: 1.5,
           }}
         >
-          <HollowCard title="Prompts" minH={280} />
-          <HollowCard title="Inspection Recommendations/Descriptions" minH={280} />
-          <HollowCard
-            title="Attachments"
-            minH={280}
-            padding={1}
+          <HollowCard title="Prompt/ Inspection Agenda" padding="12px 10px" cardContentPad={1} action={
+            <InfoToolTip placement="bottom-end" title="A structured outline detailing the key areas, timing and objectives for the upcoming inspection">
+              <IconButton
+                size="small"
+                sx={{ width: 30, height: 30 }}
+              >
+                < InfoIcon />
+
+              </IconButton>
+            </InfoToolTip>}
           >
-            <Link sx={{ display: "block" }} href="#">
+
+            <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.8 }}>
+              What is your recommendation to the business team – Is immediate action required?
+              <li>What was the driver for the inspection?</li>
+              <li>
+                What was the minimum measured thickness and how does that compare to the
+                requirement?
+              </li>
+            </ul>
+          </HollowCard>
+
+          <HollowCard title="Inspection Recommendations" padding="12px 10px" cardContentPad={1} action=
+            {<InfoToolTip placement="bottom-end" title="A Concise summary of findings suggested actions to improve compliance,safety and opearional">
+              <IconButton
+                size="small"
+                sx={{ width: 30, height: 30 }}
+              >
+                < InfoIcon />
+
+              </IconButton>
+            </InfoToolTip>}
+          >
+            <div style={{ lineHeight: 1.8, color: "#4A4A4A" }}>
+              <p style={{ margin: "0 0 12px 0" }}>What was the driver for the inspection?</p>
+
+              <p style={{ marginBottom: 12 }}>
+                <span>Thickness Inspection</span>
+                <br />
+                <span>(Due date:- 09/01/2025)</span>
+              </p>
+
+              <p style={{ margin: "0 0 12px 0" }}>
+                What is your recommendation to the business team – Is immediate action? FE to review
+                the low reading areas (probably lower).
+              </p>
+
+              <p style={{ margin: "0 0 12px 0" }}>
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry..
+              </p>
+
+              <p style={{ margin: 0 }}>
+                <strong>Current thickness: 1.35 mm</strong>
+              </p>
+            </div>
+          </HollowCard>
+
+          <HollowCard title="Attachments" padding="12px 10px" cardContentPad={1}>
+            <Link
+              sx={{ display: "block", mb: 0.5 }}
+              component="button"
+              onClick={() => handleOpenPreview("bpvc_viii-1_u-1a_5.pdf")}
+            >
               bpvc_viii-1_u-1a_5.pdf
             </Link>
-            <Link sx={{ display: "block" }} variant="body1" href="#">
+            <Link
+              sx={{ display: "block" }}
+              component="button"
+              onClick={() => {
+                // open file viewer / modal / API call — your logic here
+              }}
+            >
               bpvc_6.pdf
             </Link>
           </HollowCard>
           <HollowCard
-            title="MSP Engineer Note Pad"
-            minH={280}
+            title="Engineer’s Notepad"
+             padding="10px"
             action={
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <Tooltip title="Save To Record (download)">
+                <Tooltip title="Save To Record">
                   <span>
                     <IconButton
                       size="small"
                       color="error"
                       onClick={saveNote}
                       disabled={!note.trim()}
+                      sx={{ width: 25, height: 25 }}
                     >
-                      <SaveAltOutlinedIcon />
+                      {loader?.isLoading ? <CircularProgress /> : < DownloadIcon />}
                     </IconButton>
                   </span>
                 </Tooltip>
-                <Tooltip title="Clear">
+                {/* <Tooltip title="Clear">
                   <span>
                     <IconButton
                       size="small"
@@ -275,16 +478,16 @@ const TMinReview: React.FC = () => {
                       <ClearOutlinedIcon />
                     </IconButton>
                   </span>
-                </Tooltip>
+                </Tooltip> */}
               </Box>
             }
           >
             <Box
               sx={{
                 position: "relative",
-                height: 240,
                 border: "1px dashed #DBDBDB",
                 borderRadius: 1,
+                height: "100%",
                 background:
                   "repeating-linear-gradient(white, white 28px, #ECECEC 29px, #ECECEC 30px)",
               }}
@@ -333,6 +536,70 @@ const TMinReview: React.FC = () => {
           </HollowCard>
         </Box>
 
+        {/* Image Preview Modal */}
+        <Dialog
+          open={openPreview}
+          onClose={handleClosePreview}
+          maxWidth={false}              // allow custom width
+          PaperProps={{
+            sx: {
+              width: "50vw",            // ⬅ reduce width
+              height: "90vh",           // ⬅ increase height
+              overflow: "hidden",       // ⬅ remove scrollbars
+              borderRadius: 2,
+            },
+          }}
+
+          sx={{
+            "& .MuiDialog-container": {
+              alignItems: "center",
+            },
+            "& .MuiDialogContent-root": {
+              overflow: "hidden !important",  // remove scroll inside content
+            },
+            "& .MuiDialog-paper": {
+              overflow: "hidden !important",  // double ensure
+            },
+            "& .MuiDialog-paperScrollPaper": {
+              overflow: "hidden !important",  // remove scroll from this wrapper
+            },
+          }}
+        >
+          <DialogTitle sx={{ color: "error.main", fontWeight: 700 }}>
+            {previewTitle}
+            <IconButton
+              sx={{ position: "absolute", right: 8, top: 8 }}
+              onClick={handleClosePreview}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+
+          <DialogContent
+            sx={{
+              p: 0,                     // remove padding so image fills edge-to-edge
+              height: "100%",           // allow full height
+            }}
+          >
+            <img
+              src={previewFile || ""}
+              alt="preview"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",     // fill area, cropping allowed
+              }}
+            />
+          </DialogContent>
+
+          {/* <DialogActions sx={{ p: 2 }}>
+            <Button onClick={handleClosePreview} color="primary">
+              Close
+            </Button>
+          </DialogActions> */}
+        </Dialog>
+
+
         <Snackbar
           open={savedOpen}
           autoHideDuration={1800}
@@ -349,8 +616,13 @@ const TMinReview: React.FC = () => {
           </Alert>
         </Snackbar>
       </TMinScaffold>
+      <PopupDialog
+        open={openSuccess}
+        message="MSP Engineer Comments succesfully saved."
+      />
+      
     </MainLayout>
   )
-};
+}
 
-export default TMinReview;
+export default TMinReview

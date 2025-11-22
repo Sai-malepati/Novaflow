@@ -75,8 +75,8 @@ const SvgModalAnimator: React.FC<SvgModalAnimatorProps> = ({
           borderRadius: 2,
           boxShadow: 24,
           textAlign: "center",
-          width: 600,
-          height: 400,
+          width: 450,
+          height: 360,
         }}
       >
         <Box
