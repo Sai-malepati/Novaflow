@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"
 import {
   Box,
   Paper,
@@ -16,16 +16,20 @@ import {
   DialogContent,
   DialogActions,
   Stack,
-} from "@mui/material";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import MainLayout from "../components/MainLayout";
-import TMinScaffold, { TMinStep } from "../components/TMinScaffold";
-import { useLocation, useNavigate } from "react-router-dom";
-import { ReportCard } from "./dashboard/Dashboard";
-import { useCreateItemMutation, useGetItemsQuery, useGetOCRValuesQuery, useGetTMinValuesQuery } from "store/api";
-import InsertLinkIcon from "@mui/icons-material/InsertLink";
-
+} from "@mui/material"
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline"
+import MainLayout from "../components/MainLayout"
+import TMinScaffold, { TMinStep } from "../components/TMinScaffold"
+import { useLocation, useNavigate } from "react-router-dom"
+import { ReportCard } from "./dashboard/Dashboard"
+import {
+  useCreateItemMutation,
+  useGetItemsQuery,
+  useGetOCRValuesQuery,
+  useGetTMinValuesQuery,
+} from "store/api"
+import InsertLinkIcon from "@mui/icons-material/InsertLink"
 
 const STEPS: TMinStep[] = [
   { title: "Gathering Details", helper: "Complete", state: "done" },
@@ -34,7 +38,7 @@ const STEPS: TMinStep[] = [
   { title: "Review Data", helper: "In Progress", state: "active" },
   { title: "T-Min Review", state: "idle" },
   { title: "Report Generation", state: "idle" },
-];
+]
 
 const REPORT_LINKS = [
   "Manufacturer Record Book (MRB)",
@@ -45,24 +49,21 @@ const REPORT_LINKS = [
   "Piping and Instrumentation Diagram",
   "Equipment strategy",
   "TML Sketch",
-];
-
+]
 
 const REFERENCE_DOCS: string[] = [
   // "IOW Assessment.pdf",
   // "Thickness Trending.xlsx",
-];
+]
 
 const LAN_PATH =
   "K:\\BTAREA\\BTES\\FIXEDEQUIP\\Inspection\\FS\\CLEU\\CLEUs\n" +
-  "Inspection Planner’s Folder\\EOR Folder CLE3L3-T0302";
+  "Inspection Planner’s Folder\\EOR Folder CLE3L3-T0302"
 
-type Row = { id: string; label: string; param: string; comment: string };
-type LocRow = { id: string; label: string; param: string; comment: string };
+type Row = { id: string; label: string; param: string; comment: string }
+type LocRow = { id: string; label: string; param: string; comment: string }
 
-
-
-const SectionTitle: React.FC<React.PropsWithChildren> = ({ children }) => (
+export const SectionTitle: React.FC<React.PropsWithChildren> = ({ children }) => (
   <Box
     sx={{
       bgcolor: "#EFF2F3",
@@ -74,43 +75,42 @@ const SectionTitle: React.FC<React.PropsWithChildren> = ({ children }) => (
       color: "text.primary",
       mb: 1.25,
       mt: 2,
+      position: "sticky",
+      top: 390,
+      zIndex: 2,
     }}
   >
     {children}
   </Box>
-);
+)
 
 const TMinModel: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate = useNavigate()
+  const location = useLocation()
   // const eslData = (location.state as { eslData?: any })?.eslData;
   const eslDataSession = sessionStorage?.getItem("eslData") || ""
   const eslData = JSON.parse(eslDataSession)
 
-  const eslId = eslData?.eslid;
-  const assignedDate = new Date(eslData?.assignedDate).toLocaleDateString();
-  const site = eslData?.site;
-  const [dueInDays, setDueInDays] = useState(eslData?.dueInDays + " Days");
-  const [modelCreated, setModelCreated] = useState(false);
-  const [data, setData] = useState<any | null>(null);
+  const eslId = eslData?.eslid
+  const assignedDate = new Date(eslData?.assignedDate).toLocaleDateString()
+  const site = eslData?.site
+  const [dueInDays, setDueInDays] = useState(eslData?.dueInDays + " Days")
+  const [modelCreated, setModelCreated] = useState(false)
+  const [data, setData] = useState<any | null>(null)
   const [steps, setSteps] = useState(STEPS)
   const [mspEngComment, setMspEngComment] = useState(false)
   const [mspAssumptions, setMspAssumptions] = useState(false)
 
   //   const { data: ocrData, isLoading: ocrLoading } = useGetOCRValuesQuery(eslData?.id);
-  const { data: ocrData, isLoading: ocrLoading } = useGetItemsQuery(`OpentextSource/GetOCRValues?id=${eslData?.id}`);
+  const { data: ocrData, isLoading: ocrLoading } = useGetItemsQuery(
+    `OpentextSource/GetOCRValues?id=${eslData?.id}`,
+  )
 
+  const { data: tminData, isLoading: tminLoading } = useGetTMinValuesQuery(eslId)
 
-  const { data: tminData, isLoading: tminLoading } = useGetTMinValuesQuery(eslId);
-
-
-
-
-  const [designRows, setDesignRows] = React.useState<Row[]>([]);
-  const [locationRows, setLocationRows] = React.useState<Row[]>([]);
+  const [designRows, setDesignRows] = React.useState<Row[]>([])
+  const [locationRows, setLocationRows] = React.useState<Row[]>([])
   React.useEffect(() => {
-
-
     const updatedRows: Row[] = [
       {
         id: "d1",
@@ -154,8 +154,13 @@ const TMinModel: React.FC = () => {
         param: "Shell Ring 1",
         comment: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
       },
-      { id: "d8", label: "Date", param: "23/09/2025", comment: "Lorem Ipsum is simply dummy text of the printing and typesetting industry." },
-    ];
+      {
+        id: "d8",
+        label: "Date",
+        param: "23/09/2025",
+        comment: "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+      },
+    ]
 
     const LOCATION_ROWS_INIT = [
       {
@@ -170,51 +175,53 @@ const TMinModel: React.FC = () => {
       { id: "tmm", label: "Tmm", param: tminData?.Tmm, comment: "" },
       { id: "pmg", label: "PMG", param: tminData?.PMG, comment: "" },
       { id: "tpmg", label: "TPMG", param: tminData?.TPMG, comment: "" },
-      { id: "tapi", label: "TAPI574", param: (tminData?.TAPI)?.toFixed(3), comment: "" },
+      { id: "tapi", label: "TAPI574", param: tminData?.TAPI?.toFixed(3), comment: "" },
       { id: "l8", label: "TB31.3", param: tminData?.PlantManagerJ, comment: "" },
       { id: "l9", label: "Localized damage", param: tminData?.LocalizedDamage, comment: "" },
-    ];
-    setDesignRows(updatedRows);
+    ]
+    setDesignRows(updatedRows)
     setLocationRows(LOCATION_ROWS_INIT)
-    console.log('useEffect calling');
-  }, [ocrData, tminData]);
+    console.log("useEffect calling")
+  }, [ocrData, tminData])
 
-  const [editingId, setEditingId] = React.useState<string | null>(null);
-  const [draftComment, setDraftComment] = React.useState("");
+  const [editingId, setEditingId] = React.useState<string | null>(null)
+  const [draftComment, setDraftComment] = React.useState("")
 
   const startEdit = (id: string, current: string) => {
-    setEditingId(id);
-    setDraftComment(current);
-  };
+    setEditingId(id)
+    setDraftComment(current)
+  }
   const commitEdit = () => {
-    if (!editingId) return;
-    setDesignRows((prev) => prev.map((r) => (r.id === editingId ? { ...r, comment: draftComment } : r)));
-    setLocationRows((prev) => prev.map((r) => (r.id === editingId ? { ...r, comment: draftComment } : r)));
-    setEditingId(null);
-    setDraftComment("");
-  };
+    if (!editingId) return
+    setDesignRows((prev) =>
+      prev.map((r) => (r.id === editingId ? { ...r, comment: draftComment } : r)),
+    )
+    setLocationRows((prev) =>
+      prev.map((r) => (r.id === editingId ? { ...r, comment: draftComment } : r)),
+    )
+    setEditingId(null)
+    setDraftComment("")
+  }
 
+  const [hasThickness, setHasThickness] = React.useState(false)
+  const [approved, setApproved] = React.useState(false)
+  const [thicknessValue, setThicknessValue] = React.useState<string | number | null>(null)
 
-  const [hasThickness, setHasThickness] = React.useState(false);
-  const [approved, setApproved] = React.useState(false);
-  const [thicknessValue, setThicknessValue] = React.useState<string | number | null>(null);
+  const [openSendPopup, setOpenSendPopup] = React.useState(false)
+  const [createItem, { isLoading }] = useCreateItemMutation()
 
-
-  const [openSendPopup, setOpenSendPopup] = React.useState(false);
-  const [createItem, { isLoading }] = useCreateItemMutation();
-
-  const handleCreate3D = () => setModelCreated(true);
+  const handleCreate3D = () => setModelCreated(true)
 
   const handleCalcRT = async () => {
     if (!tminData) {
-      console.error("tminData result not loaded");
-      return;
+      console.error("tminData result not loaded")
+      return
     } else {
-      console.log("handleCalcRT tminData :: ", tminData);
+      console.log("handleCalcRT tminData :: ", tminData)
     }
 
     try {
-      console.log('locationRows', locationRows);
+      console.log("locationRows", locationRows)
       const newItem = await createItem({
         endpoint: `TminCalculation/calculate?eslId=${eslId}`,
         body: {
@@ -231,60 +238,63 @@ const TMinModel: React.FC = () => {
           location: tminData?.Location,
           component: tminData?.Component,
         },
-      }).unwrap();
+      }).unwrap()
 
-      setThicknessValue(newItem?.jsonres?.retirementThickness ?? "NA");
+      setThicknessValue(newItem?.jsonres?.retirementThickness ?? "NA")
 
       setLocationRows((prev) => {
         return prev.map((item) => {
           if (Object.prototype.hasOwnProperty.call(newItem.jsonres, item.id)) {
-            return { ...item, param: newItem.jsonres[item.id] };
+            return { ...item, param: newItem.jsonres[item.id] }
           }
-          return item;
-        });
-      });
+          return item
+        })
+      })
 
-      if (!isLoading) setHasThickness(true);
+      if (!isLoading) setHasThickness(true)
     } catch (err) {
-      console.error("Error calculating retirement thickness:", err);
+      console.error("Error calculating retirement thickness:", err)
     }
-  };
+  }
 
-  const handleSendToReview = () => { setOpenSendPopup(true) };
+  const handleSendToReview = () => {
+    setOpenSendPopup(true)
+  }
   const handleSendOk = () => {
-    setOpenSendPopup(false);
+    setOpenSendPopup(false)
     setDueInDays("2 days")
 
-    setApproved(true);
-    setSteps(prev => prev.map(step => {
-
-      if (step.title === "Review Data") {
-        return {
-          ...step, helper: "Complete", state: "done"
+    setApproved(true)
+    setSteps((prev) =>
+      prev.map((step) => {
+        if (step.title === "Review Data") {
+          return {
+            ...step,
+            helper: "Complete",
+            state: "done",
+          }
         }
-      }
-      if (step.title === "T-Min Review") {
-
-        return {
-          ...step, helper: "In Progress", state: "active"
+        if (step.title === "T-Min Review") {
+          return {
+            ...step,
+            helper: "In Progress",
+            state: "active",
+          }
         }
-      }
-      return step;
-    }
-    ))
-  };
-
+        return step
+      }),
+    )
+  }
 
   const handleGenerateReport = React.useCallback(() => {
-    navigate("/tmin-report", { state: { eslId } });
-  }, [navigate, eslId]);
-
+    navigate("/tmin-report", { state: { eslId } })
+  }, [navigate, eslId])
 
   const tiles = [
     {
       // icon: <span>🏷️</span>,
       label: "Equipment Tag",
-      value: eslData?.equipmentTag
+      value: eslData?.equipmentTag,
     },
     {
       // icon: <span>⚙️</span>,
@@ -292,33 +302,34 @@ const TMinModel: React.FC = () => {
       value: eslData?.processDescription,
     },
     {
-      // icon: <span>👥</span>, 
+      // icon: <span>👥</span>,
       label: "Business Team",
-      value: eslData?.businessTeamName
+      value: eslData?.businessTeamName,
     },
     {
-      // icon: <span>🏭</span>, 
+      // icon: <span>🏭</span>,
       label: "Unit",
-      value: eslData?.unitName
+      value: eslData?.unitName,
     },
-  ];
+  ]
 
   const fileLocation =
-    "K:\\BTAREA\\BTES\\FIXEDEQUIP\\Inspection\\FS\\CLEU\\CLEUs\\Inspection Planner’s Folder\\EOR Folder CLE3L3-T0302";
+    "K:\\BTAREA\\BTES\\FIXEDEQUIP\\Inspection\\FS\\CLEU\\CLEUs\\Inspection Planner’s Folder\\EOR Folder CLE3L3-T0302"
 
   const { data: eslsData } = useGetItemsQuery("Esls")
 
   const comments = eslsData?.some((esls: any) => esls?.eslid === eslData?.eslid)
- 
 
-  const [mspComment, setMspComment]= useState( comments || "*Has not had an initial internal inspection. Internal required to ensure process changes have been successful and to ensure shell integrity.")
+  const [mspComment, setMspComment] = useState(
+    comments ||
+      "*Has not had an initial internal inspection. Internal required to ensure process changes have been successful and to ensure shell integrity.",
+  )
   useEffect(() => {
-  setMspComment(eslsData?.filter((esls: any) => esls?.eslid === eslData?.eslid)[0].comments)
-  },[eslsData])
-console.log('mspComment', mspComment);
+    setMspComment(eslsData?.filter((esls: any) => esls?.eslid === eslData?.eslid)[0].comments)
+  }, [eslsData])
+  console.log("mspComment", mspComment)
   const assumptions =
     "Lorem Ipsum is simply dummy text of the printing and typesetting industry,Lorem Ipsum has been the industry's standard dummy text even since the 1500s"
-
 
   return (
     <MainLayout>
@@ -340,36 +351,36 @@ console.log('mspComment', mspComment);
             <Chip label="Approved" color="success" variant="filled" />
           </Box>
         )}
-        <SectionTitle>Validate Collected Data</SectionTitle>
-
+        
         <Paper variant="outlined" sx={{ overflow: "hidden", mb: 2 }}>
           <Table>
-            <TableHead sx={{position:"sticky", top:0}}>
+            <TableHead sx={{ position: "sticky", top: 0 }}>
               <TableRow sx={{ bgcolor: "#FFECEC" }}>
-                <TableCell sx={{ fontWeight: 700, position:"sticky", top:0 }}>Design Information</TableCell>
+                <TableCell sx={{ fontWeight: 700, position: "sticky", top: 0 }}>
+                  Design Information
+                </TableCell>
                 {/* <TableCell sx={{ fontWeight: 700 }}>Parameter&apos;s</TableCell> */}
-                <TableCell sx={{ fontWeight: 700, position:"sticky", top:0 }}>Values</TableCell>
-                <TableCell sx={{ fontWeight: 700, position:"sticky", top:0 }}>Comment</TableCell>
-                <TableCell sx={{ fontWeight: 700, position:"sticky", top:0 }}>Action</TableCell>
+                <TableCell sx={{ fontWeight: 700, position: "sticky", top: 0 }}>Values</TableCell>
+                <TableCell sx={{ fontWeight: 700, position: "sticky", top: 0 }}>Comment</TableCell>
+                <TableCell sx={{ fontWeight: 700, position: "sticky", top: 0 }}>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {designRows.map((r) => {
-                const editing = editingId === r.id;
+                const editing = editingId === r.id
                 return (
                   <TableRow key={r.id}>
-                    <TableCell sx={{ width: 200, borderBottom:0, padding:1 }}>
-                      <Box sx = {{border: "1px solid #ECEDEF",padding:2}}>
-                         {r.label}
-                      </Box>
-                     
-                      </TableCell>
-                    <TableCell sx={{ width: 350, color: "text.secondary", borderBottom:0, padding:1 }}>
-                      <Box sx = {{border: "1px solid #ECEDEF", padding:2,  "&:empty": {p:3}}}>
-                         {r.param}
+                    <TableCell sx={{ width: 200, borderBottom: 0, padding: 1 }}>
+                      <Box sx={{ border: "1px solid #ECEDEF", padding: 2 }}>{r.label}</Box>
+                    </TableCell>
+                    <TableCell
+                      sx={{ width: 350, color: "text.secondary", borderBottom: 0, padding: 1 }}
+                    >
+                      <Box sx={{ border: "1px solid #ECEDEF", padding: 2, "&:empty": { p: 3 } }}>
+                        {r.param}
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ width: 300, borderBottom:0, padding:1 }}>
+                    <TableCell sx={{ width: 300, borderBottom: 0, padding: 1 }}>
                       {editing ? (
                         <TextField
                           fullWidth
@@ -387,20 +398,20 @@ console.log('mspComment', mspComment);
                             borderRadius: 1,
                             border: "1px solid #ECEDEF",
                             color: "text.primary",
-                              "&:empty": {p:3}
+                            "&:empty": { p: 3 },
                           }}
                         >
                           {r.comment}
                         </Box>
                       )}
                     </TableCell>
-                    <TableCell width={52} sx = {{borderBottom:0, padding:1}}>
+                    <TableCell width={52} sx={{ borderBottom: 0, padding: 1 }}>
                       <IconButton size="small" onClick={() => startEdit(r.id, r.comment)}>
-                        <EditOutlinedIcon fontSize="small" />
+                        <EditOutlinedIcon fontSize="small" sx={{ color: "#28A5DD" }} />
                       </IconButton>
                     </TableCell>
                   </TableRow>
-                );
+                )
               })}
             </TableBody>
           </Table>
@@ -410,70 +421,86 @@ console.log('mspComment', mspComment);
           <Table>
             <TableHead>
               <TableRow sx={{ bgcolor: "#FFECEC" }}>
-                <TableCell sx={{ fontWeight: 700, borderBottom:0 }}>Location</TableCell>
-                <TableCell sx={{ fontWeight: 700, borderBottom:0 }}>Values</TableCell>
-                <TableCell sx={{ fontWeight: 700, borderBottom:0 }}>Comment</TableCell>
-                <TableCell sx={{ fontWeight: 700, borderBottom:0 }}>Action</TableCell>
+                <TableCell sx={{ fontWeight: 700, borderBottom: 0 }}>Location</TableCell>
+                <TableCell sx={{ fontWeight: 700, borderBottom: 0 }}>Values</TableCell>
+                <TableCell sx={{ fontWeight: 700, borderBottom: 0 }}>Comment</TableCell>
+                <TableCell sx={{ fontWeight: 700, borderBottom: 0 }}>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {locationRows.map((r) => {
-                const editing = editingId === r.id;
+                const editing = editingId === r.id
                 return (
                   <TableRow key={r.id}>
-                    <TableCell sx={{ width: 200, borderBottom:0, padding:1 }}>
-                       <Box sx = {{border: "1px solid #ECEDEF",padding:2}}>
-                         {r.label}
-                      </Box></TableCell>
-                    <TableCell sx={{ width: 350, borderBottom:0, color: "text.secondary",  padding:1 }}>
-                      {editing ? <TextField
-                        onChange={(e) => {
-                          setLocationRows(prevlocationRows => prevlocationRows.map(row => row.id === editingId ? { ...row, param: e.target.value } : row))
-                        }}
-                        fullWidth size='small' value={r.param} autoFocus /> : <Box
+                    <TableCell sx={{ width: 200, borderBottom: 0, padding: 1 }}>
+                      <Box sx={{ border: "1px solid #ECEDEF", padding: 2 }}>{r.label}</Box>
+                    </TableCell>
+                    <TableCell
+                      sx={{ width: 350, borderBottom: 0, color: "text.secondary", padding: 1 }}
+                    >
+                      {editing ? (
+                        <TextField
+                          onChange={(e) => {
+                            setLocationRows((prevlocationRows) =>
+                              prevlocationRows.map((row) =>
+                                row.id === editingId ? { ...row, param: e.target.value } : row,
+                              ),
+                            )
+                          }}
+                          fullWidth
+                          size="small"
+                          value={r.param}
+                          autoFocus
+                        />
+                      ) : (
+                        <Box
                           sx={{
                             p: 2,
                             color: "text.secondary",
-                             border: "1px solid #ECEDEF",
-                             "&:empty": {p:3},
+                            border: "1px solid #ECEDEF",
+                            "&:empty": { p: 3 },
                           }}
                         >
-                        {r.param}
-                      </Box>}
+                          {r.param}
+                        </Box>
+                      )}
                     </TableCell>
-                    <TableCell sx={{ width: 300, borderBottom:0,  padding:1 }}>
+                    <TableCell sx={{ width: 300, borderBottom: 0, padding: 1 }}>
                       {editing ? (
                         <TextField
                           fullWidth
                           size="small"
                           value={r.comment}
                           onChange={(e) => {
-                            setLocationRows(prevlocationRows => prevlocationRows.map(row => row.id === editingId ? { ...row, comment: e.target.value } : row))
+                            setLocationRows((prevlocationRows) =>
+                              prevlocationRows.map((row) =>
+                                row.id === editingId ? { ...row, comment: e.target.value } : row,
+                              ),
+                            )
                           }}
-
                         />
                       ) : (
                         <Box
                           sx={{
-                           p:2,
+                            p: 2,
                             bgcolor: "#F5F7F9",
                             borderRadius: 1,
                             border: "1px solid #ECEDEF",
                             color: "text.primary",
-                            "&:empty": {p:3}
+                            "&:empty": { p: 3 },
                           }}
                         >
-                          {r.comment }
+                          {r.comment}
                         </Box>
                       )}
                     </TableCell>
-                    <TableCell width={52} sx ={{borderBottom:0}}>
+                    <TableCell width={52} sx={{ borderBottom: 0 }}>
                       <IconButton size="small" onClick={() => startEdit(r.id, r.comment)}>
-                        <EditOutlinedIcon fontSize="small" />
+                        <EditOutlinedIcon fontSize="small" sx={{ color: "#28A5DD" }} />
                       </IconButton>
                     </TableCell>
                   </TableRow>
-                );
+                )
               })}
             </TableBody>
           </Table>
@@ -483,42 +510,73 @@ console.log('mspComment', mspComment);
                 display: "flex",
                 alignItems: "center",
                 mb: 0.75,
-                gap: 1.5
+                gap: 1.5,
               }}
             >
-              <Typography sx={{ fontWeight: 700, mr: 1, width: "25%" }}>MSP Engineer comments</Typography>
-              <Box  sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                width: "100%"
-              }}>
-                <TextField disabled={!mspEngComment} sx={{ width: "91%", p: 1, "& textarea": { color: "text.secondary" } }} fullWidth multiline minRows={3} value={mspComment} variant="outlined" onBlur={() => setMspEngComment(false)} />
-              <IconButton size="small" onClick={() => setMspEngComment(true)} >
-                <EditOutlinedIcon fontSize="small" />
-              </IconButton>
+              <Typography sx={{ fontWeight: 700, mr: 1, width: "25%" }}>
+                MSP Engineer comments
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  width: "100%",
+                }}
+              >
+                <TextField
+                  disabled={!mspEngComment}
+                  sx={{ width: "91%", p: 1, "& textarea": { color: "text.secondary" } }}
+                  fullWidth
+                  multiline
+                  minRows={3}
+                  value={mspComment}
+                  variant="outlined"
+                  onBlur={() => setMspEngComment(false)}
+                />
+                <IconButton size="small" onClick={() => setMspEngComment(true)}>
+                  <EditOutlinedIcon fontSize="small" sx={{ color: "#28A5DD" }} />
+                </IconButton>
               </Box>
             </Box>
-            <Box sx={{ alignItems: "center", display: "flex", justifyContent: "space-between", gap: 2 }}>
-              <Typography sx={{ fontWeight: 700, mb: 0.75,width: "25%"}}>Assumptions</Typography>
-               <Box  sx={{
-                display: "flex",
+            <Box
+              sx={{
                 alignItems: "center",
-                gap: 1.5,
-                width: "100%"
-              }}>
-              <TextField disabled={!mspAssumptions} sx={{ width:"91%", p: 1, "& textarea": { color: "text.secondary" } }} fullWidth multiline minRows={3} defaultValue={assumptions} variant="outlined" onBlur={() => setMspAssumptions(false)} />
-              {/* </Paper> */}
-              <IconButton size="small" onClick={() => setMspAssumptions(true)}>
-                <EditOutlinedIcon fontSize="small" />
-              </IconButton>
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 2,
+              }}
+            >
+              <Typography sx={{ fontWeight: 700, mb: 0.75, width: "25%" }}>Assumptions</Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  width: "100%",
+                }}
+              >
+                <TextField
+                  disabled={!mspAssumptions}
+                  sx={{ width: "91%", p: 1, "& textarea": { color: "text.secondary" } }}
+                  fullWidth
+                  multiline
+                  minRows={3}
+                  defaultValue={assumptions}
+                  variant="outlined"
+                  onBlur={() => setMspAssumptions(false)}
+                />
+                {/* </Paper> */}
+                <IconButton size="small" onClick={() => setMspAssumptions(true)}>
+                  <EditOutlinedIcon fontSize="small" sx={{ color: "#28A5DD" }} />
+                </IconButton>
               </Box>
               {/* <Paper variant="outlined" sx={{ p: 1, width: "100%" }}> */}
             </Box>
           </Box>
         </Paper>
         <Box sx={{ display: "flex", gap: 9, mt: 2, flexWrap: "wrap" }}>
-          <Box sx={{ flex: "0 0 30%", maxWidth:400 }}>
+          <Box sx={{ flex: "0 0 30%", maxWidth: 400 }}>
             <ReportCard title="Reference Attachments" links={REPORT_LINKS} />
           </Box>
           {/* <Box
@@ -570,7 +628,7 @@ console.log('mspComment', mspComment);
           <Box
             sx={{
               // flex: "1 1 20%",
-               maxWidth:400,
+              maxWidth: 400,
               border: "1px solid #E0E0E0",
               borderRadius: 1,
               display: "flex",
@@ -593,7 +651,11 @@ console.log('mspComment', mspComment);
               </Typography>
             </Box>
             <Box sx={{ p: 2 }}>
-              <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "pre-wrap", lineHeight: 1.7 }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ whiteSpace: "pre-wrap", lineHeight: 1.7 }}
+              >
                 {LAN_PATH}
               </Typography>
             </Box>
@@ -614,20 +676,37 @@ console.log('mspComment', mspComment);
         >
           {/* LEFT BUTTON */}
           <Box display={"flex"} gap={2}>
-
-            <Button loading={isLoading} variant="contained" sx={{ textTransform: "none" }} onClick={handleCalcRT}>
+            <Button
+              loading={isLoading}
+              variant="contained"
+              sx={{ textTransform: "none" }}
+              onClick={handleCalcRT}
+            >
               CALCULATE RETIREMENT THICKNESS
             </Button>
 
             {hasThickness && !approved && !isLoading && (
-              <Box sx={{ mt: 1, display: "flex", justifyContent: "flex-start", alignItems: 'right', color: "#129419" }}>
-                <strong>  Retirement Thickness for IDM/EOR Evaluation </strong>: {thicknessValue} mm
+              <Box
+                sx={{
+                  mt: 1,
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  alignItems: "right",
+                  color: "#129419",
+                }}
+              >
+                <strong> Retirement Thickness for IDM/EOR Evaluation </strong>: {thicknessValue} mm
               </Box>
             )}
           </Box>
           {/* RIGHT BUTTONS */}
           <Box display={"flex"} gap={2}>
-            <Button variant="outlined" color="error" sx={{ textTransform: "none" }} onClick={() => navigate(-1)}>
+            <Button
+              variant="outlined"
+              color="error"
+              sx={{ textTransform: "none" }}
+              onClick={() => navigate(-1)}
+            >
               BACK
             </Button>
             {/* {!modelCreated && (
@@ -637,13 +716,23 @@ console.log('mspComment', mspComment);
             )} */}
 
             {hasThickness && !approved && (
-              <Button variant="contained" color="error" sx={{ textTransform: "none" }} onClick={handleSendToReview}>
+              <Button
+                variant="contained"
+                color="error"
+                sx={{ textTransform: "none" }}
+                onClick={handleSendToReview}
+              >
                 SEND TO REVIEW
               </Button>
             )}
 
             {approved && (
-              <Button variant="contained" color="error" sx={{ textTransform: "none" }} onClick={handleGenerateReport}>
+              <Button
+                variant="contained"
+                color="error"
+                sx={{ textTransform: "none" }}
+                onClick={handleGenerateReport}
+              >
                 GENERATE REPORT
               </Button>
             )}
@@ -660,13 +749,18 @@ console.log('mspComment', mspComment);
           </Stack>
         </DialogContent>
         <DialogActions sx={{ pb: 2, pr: 2 }}>
-          <Button variant="contained" color="error" onClick={handleSendOk} sx={{ textTransform: "none", px: 4 }}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleSendOk}
+            sx={{ textTransform: "none", px: 4 }}
+          >
             OK
           </Button>
         </DialogActions>
       </Dialog>
     </MainLayout>
-  );
-};
+  )
+}
 
-export default TMinModel;
+export default TMinModel

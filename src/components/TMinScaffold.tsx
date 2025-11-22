@@ -1,20 +1,10 @@
 import React, { Fragment, useState } from "react"
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Paper,
-  Stack,
-  Avatar,
-} from "@mui/material"
-import userImg from '../static/images/user.png';
-import userBgImg from '../static/images/user_bg.png';
-import Cookies from "js-cookie";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-
-
+import { Box, Card, CardContent, Typography, Button, Paper, Stack, Avatar } from "@mui/material"
+import userImg from "../static/images/user.png"
+import userBgImg from "../static/images/user_bg.png"
+import Cookies from "js-cookie"
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined"
+import { SectionTitle } from "pages/TMinModel"
 
 export type TMinStep = {
   title: string
@@ -33,7 +23,7 @@ export const DEFAULT_STEPS: TMinStep[] = [
 
 // type Tile = { icon: React.ReactNode; label: string; value: string }
 
-type Tile = {  label: string; value: string }
+type Tile = { label: string; value: string }
 
 type Props = {
   eslId: string
@@ -45,10 +35,8 @@ type Props = {
 
   steps?: TMinStep[]
 
-
   tiles?: Tile[]
   tilesTitle?: string
-
 
   fileLocationLabel?: string
   fileLocation?: string
@@ -58,17 +46,14 @@ type Props = {
   nextLabel?: string
   rightExtra?: React.ReactNode
 
-
   showFooter?: boolean
   showBackButton?: boolean
   showNextButton?: boolean
   showFileLocation?: boolean
   disableNextButton?: boolean
 
-
   children?: React.ReactNode
 }
-
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <Box
@@ -142,16 +127,11 @@ const TileCard = ({ icon, label, value }) => (
       backgroundColor: "#fff",
     }}
   >
-    <Box sx={{ color: "error.main", display: "grid", placeItems: "center" }}>
-      {icon}
-    </Box>
+    <Box sx={{ color: "error.main", display: "grid", placeItems: "center" }}>{icon}</Box>
 
     <Box sx={{ minWidth: 0 }}>
       {/* 🔹 Label (key) - Bold */}
-      <Typography
-        variant="caption"
-        sx={{ fontWeight: 800, color: "text.primary" , mb: 0.8}}
-      >
+      <Typography variant="caption" sx={{ fontWeight: 800, color: "text.primary", mb: 0.8 }}>
         {label}
       </Typography>
 
@@ -173,10 +153,7 @@ const TileCard = ({ icon, label, value }) => (
       </Typography>
     </Box>
   </Paper>
-);
-
- 
-
+)
 
 const TMinScaffold: React.FC<Props> = ({
   eslId,
@@ -202,7 +179,6 @@ const TMinScaffold: React.FC<Props> = ({
   showNextButton = true,
   showFileLocation = true,
   disableNextButton = false,
-  
 
   children,
 }) => {
@@ -212,9 +188,9 @@ const TMinScaffold: React.FC<Props> = ({
 
   const handleBack = () => (onBack ? onBack() : window.history.back())
 
-  const workflow = Cookies.get('workflow')
-  
-  const workflowType =  workflow ? JSON.parse(workflow) : {}
+  const workflow = Cookies.get("workflow")
+
+  const workflowType = workflow ? JSON.parse(workflow) : {}
 
   const StepNode = ({
     title,
@@ -366,174 +342,230 @@ const TMinScaffold: React.FC<Props> = ({
     )
   }
 
+  const pathName = window.location.pathname
   return (
     <Box sx={{ p: 2.25, pt: "4.75rem" }}>
-      <Card elevation={0} sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2  }}>
-        <CardContent sx={{ minHeight:"13rem", p:'0 1rem', display:'flex', alignItems:'center', "&:last-child": {
-            paddingBottom: 0
-          } }}>
-          <Box sx={{ display: "flex", gap: 2, alignItems: "stretch", width: '100%'}}>
-            {workflowType?.tmin ?  <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 3,
-                jsustifyContent: "space-between",
-                bgcolor: "#FFF7F7",
-                borderRadius: 2,
-                border: "1px solid #EFEFEF",
-                p: 1.5,
-              }}
-            >
-              <Box sx={{ flex: "0 0 150px", display: "flex", flexDirection: "column", gap: 1.5 }}>
-                <Typography
-                  variant="subtitle2"
-                  sx={{ fontWeight: 700, fontSize: "0.8rem", color: "#28A5DD" }}
+      <Box sx={{ position: "sticky", top: "45px", zIndex: 2, backgroundColor: "white" }}>
+        <Card
+          elevation={0}
+          sx={{
+            borderRadius: 2,
+            border: "1px solid #ededed",
+            mb: 2,
+          }}
+        >
+          <CardContent
+            sx={{
+              minHeight: "13rem",
+              p: "0 1rem",
+              display: "flex",
+              alignItems: "center",
+              "&:last-child": {
+                paddingBottom: 0,
+              },
+            }}
+          >
+            <Box sx={{ display: "flex", gap: 2, alignItems: "stretch", width: "100%" }}>
+              {workflowType?.tmin ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 3,
+                    jsustifyContent: "space-between",
+                    bgcolor: "#FFF7F7",
+                    borderRadius: 2,
+                    border: "1px solid #EFEFEF",
+                    p: 1.5,
+                  }}
                 >
-                  ESL ID
-                </Typography>
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#5A5A5A", fontSize: "0.8rem" }}>
-                  SAP ID
-                </Typography>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#6D6E71", fontSize: "0.8rem" }}>
-                  Assigned Date
-                </Typography>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#6D6E71", fontSize: "0.8rem" }}>
-                  Time Remaining
-                </Typography>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#6D6E71", fontSize: "0.8rem" }}>
-                  Site
-                </Typography>
-              </Box>
-              <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 1.5 }}>
-                <Typography sx={{ color: "#28A5DD", fontWeight: 600, fontSize: "0.8rem" }}>
-                  {eslId}
-                </Typography>
-                <Typography sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#080404", display:'flex', gap:1}}>
-                  {sap}
-               <EditOutlinedIcon sx = {{color: "#28A5DD", width: "12px",height: "12px", cursor:"Pointer",borderBottom:"1px solid #28A5DD"}}/>
-                </Typography>
-                <Typography sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#292929" }}>
-                  {assignedDate}
-                </Typography>
-                <Typography sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#292929" }}>
-                  {timeRemaining}
-                </Typography>
-                <Typography sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#292929" }}>
-                  {site}
-                </Typography>
-              </Box>
-            </Box> : null}
+                  <Box
+                    sx={{ flex: "0 0 150px", display: "flex", flexDirection: "column", gap: 1.5 }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 700, fontSize: "0.8rem", color: "#28A5DD" }}
+                    >
+                      ESL ID
+                    </Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 800, color: "#5A5A5A", fontSize: "0.8rem" }}
+                    >
+                      SAP ID
+                    </Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 700, color: "#6D6E71", fontSize: "0.8rem" }}
+                    >
+                      Assigned Date
+                    </Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 700, color: "#6D6E71", fontSize: "0.8rem" }}
+                    >
+                      Time Remaining
+                    </Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 700, color: "#6D6E71", fontSize: "0.8rem" }}
+                    >
+                      Site
+                    </Typography>
+                  </Box>
+                  <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 1.5 }}>
+                    <Typography sx={{ color: "#28A5DD", fontWeight: 600, fontSize: "0.8rem" }}>
+                      {eslId}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: "0.8rem",
+                        color: "#080404",
+                        display: "flex",
+                        gap: 1,
+                      }}
+                    >
+                      {sap}
+                      <EditOutlinedIcon
+                        sx={{
+                          color: "#28A5DD",
+                          width: "12px",
+                          height: "12px",
+                          cursor: "Pointer",
+                          borderBottom: "1px solid #28A5DD",
+                        }}
+                      />
+                    </Typography>
+                    <Typography sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#292929" }}>
+                      {assignedDate}
+                    </Typography>
+                    <Typography sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#292929" }}>
+                      {timeRemaining}
+                    </Typography>
+                    <Typography sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#292929" }}>
+                      {site}
+                    </Typography>
+                  </Box>
+                </Box>
+              ) : null}
 
-            {workflowType?.hitLeak ?  
-    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-      <Avatar
-        src={userImg}
-        alt="Profile"
-        sx={{
-          width: 100,
-          height: 100,
-          padding: "5px",
-          backgroundImage: `url(${userBgImg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "top",
-          backgroundRepeat: "no-repeat",
-          borderRadius: "50%",
-        }}
-      />
-      <Box sx={{ borderLeft: "3px solid #D5010B", paddingLeft: 1 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: "red" }}>
-          Welcome, Steven
-        </Typography>
-        <Typography variant="body2" sx={{ color: "gray" }}>
-          EXXON MSP ENGINEER
-        </Typography>
-      </Box>
-    </Box> : null}
+              {workflowType?.hitLeak ? (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Avatar
+                    src={userImg}
+                    alt="Profile"
+                    sx={{
+                      width: 100,
+                      height: 100,
+                      padding: "5px",
+                      backgroundImage: `url(${userBgImg})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "top",
+                      backgroundRepeat: "no-repeat",
+                      borderRadius: "50%",
+                    }}
+                  />
+                  <Box sx={{ borderLeft: "3px solid #D5010B", paddingLeft: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: "red" }}>
+                      Welcome, Steven
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: "gray" }}>
+                      EXXON MSP ENGINEER
+                    </Typography>
+                  </Box>
+                </Box>
+              ) : null}
               <Box
-              sx={{
-                px: 1,
-                py: 0.25,
-                minWidth: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "100%",
-                p: "0 5%",
-                m: "0 auto",
-              }}
-            >
-              <Box
-                sx={() => {
-                  const lastDoneIndex = Math.max(
-                    ...steps.map((s, i) => (s.state === "done" ? i : -1)),
-                    -1,
-                  );
-                  const percent = ((lastDoneIndex + 1) / (steps.length - 1)) * 100;
-                  const progressPercent = percent > 100 ? 100 : percent;
-                  return {
-                    background: "#E8E8E8",
-                    height: "0.8rem",
-                    width: "100%",
-                    overflow: "visible",
-                    position: "relative",
-                    boxShadow: "0 -1px 0 rgba(0,0,0,0.2)",
-                    "&:after": {
-                      content: '""',
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      height: "100%",
-                      width: `${progressPercent}%`,
-                      backgroundImage: "linear-gradient(180deg, #6BD871, #1D3F1F)",
-                      zIndex: 1,
-                      borderRadius: 4,
-                      transition: "width 0.2s ease",
-                    },
-                  }
+                sx={{
+                  px: 1,
+                  py: 0.25,
+                  minWidth: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "100%",
+                  p: "0 5%",
+                  m: "0 auto",
                 }}
               >
-                {steps.map((s, i) => (
-                  <React.Fragment key={s.title}>
-                    <StepNode title={s.title} state={s.state} index={i + 1} helper={s.helper} />
-                  </React.Fragment>
-                ))}
+                <Box
+                  sx={() => {
+                    const lastDoneIndex = Math.max(
+                      ...steps.map((s, i) => (s.state === "done" ? i : -1)),
+                      -1,
+                    )
+                    const percent = ((lastDoneIndex + 1) / (steps.length - 1)) * 100
+                    const progressPercent = percent > 100 ? 100 : percent
+                    return {
+                      background: "#E8E8E8",
+                      height: "0.8rem",
+                      width: "100%",
+                      overflow: "visible",
+                      position: "relative",
+                      boxShadow: "0 -1px 0 rgba(0,0,0,0.2)",
+                      "&:after": {
+                        content: '""',
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        height: "100%",
+                        width: `${progressPercent}%`,
+                        backgroundImage: "linear-gradient(180deg, #6BD871, #1D3F1F)",
+                        zIndex: 1,
+                        borderRadius: 4,
+                        transition: "width 0.2s ease",
+                      },
+                    }
+                  }}
+                >
+                  {steps.map((s, i) => (
+                    <React.Fragment key={s.title}>
+                      <StepNode title={s.title} state={s.state} index={i + 1} helper={s.helper} />
+                    </React.Fragment>
+                  ))}
+                </Box>
               </Box>
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-
-
-      {tiles && tiles.length > 0 && (
-        <Card elevation={0} sx={{ borderRadius: 2, border: "1px solid #ededed", mb: 2 }}>
-          <CardContent sx={{ p: 2 }}>
-            <Typography variant="subtitle2" sx={{ color: "error.main", fontWeight: 700, mb: 1 }}>
-              {tilesTitle}
-            </Typography>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "repeat(2,1fr)",
-                  md: "repeat(3,1fr)",
-                  lg: "repeat(6,1fr)",
-                },
-                gap: 1.25,
-              }}
-            >
-              {tiles.map((t, i) => (
-                <TileCard key={i} {...t} />
-              ))}
             </Box>
           </CardContent>
         </Card>
-      )}
 
+        {tiles && tiles.length > 0 && (
+          <Card
+            elevation={0}
+            sx={{
+              borderRadius: 2,
+              border: "1px solid #ededed",
+              mb: 2,
+            }}
+          >
+            <CardContent sx={{ p: 2 }}>
+              <Typography variant="subtitle2" sx={{ color: "error.main", fontWeight: 700, mb: 1 }}>
+                {tilesTitle}
+              </Typography>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    sm: "repeat(2,1fr)",
+                    md: "repeat(3,1fr)",
+                    lg: "repeat(6,1fr)",
+                  },
+                  gap: 1.25,
+                }}
+              >
+                {tiles.map((t, i) => (
+                  <TileCard key={i} {...t} />
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
+        )}
+        {pathName === "/tmin-model" ? <SectionTitle>Validate Collected Data</SectionTitle> : null}
+      </Box>
 
       {children}
-
 
       {showFooter && (
         <Box sx={{ mt: 2 }}>
@@ -588,7 +620,6 @@ const TMinScaffold: React.FC<Props> = ({
                         borderRadius: 2,
                         bgcolor: "#FF4D4D",
                         "&:hover": { bgcolor: "#E53935" },
-                      
                       }}
                     >
                       {nextLabel}
@@ -604,4 +635,4 @@ const TMinScaffold: React.FC<Props> = ({
   )
 }
 
-export default TMinScaffold;
+export default TMinScaffold
