@@ -69,14 +69,15 @@ export const UserInfoHeader = () => {
           src={!workflowTypes?.tmin ? hitUserBg : userImg}
           alt="Profile"
           sx={{
-            width: 100,
-            height: 100,
-            padding: "5px",
+            width: workflowTypes?.tmin ? "100px" : "70px",
+            height: workflowTypes?.tmin ? "100px" : "70px",
+            padding: workflowTypes?.tmin ? "5px" : "10px",
             backgroundImage: `url(${workflowTypes?.tmin && userBgImg})`,
             backgroundSize: "cover",
             backgroundPosition: "top",
             backgroundRepeat: "no-repeat",
             borderRadius: workflowTypes?.tmin && "50%",
+            backgroundColor: workflowTypes?.tmin ? "#fff" : "#FDF3F3",
           }}
         />
         <Box sx={{ borderLeft: "3px solid #D5010B", paddingLeft: 1 }}>

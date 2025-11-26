@@ -282,7 +282,9 @@ import MainLayout from "../../components/MainLayout"
 import TMinScaffold, { TMinStep } from "../../components/TMinScaffold"
 import Cookies from "js-cookie"
 import { UserInfoHeader } from "../user-info-header/UserInfoHeader"
-import { useNavigate } from "react-router-dom"
+// import { useNavigate } from "react-router-dom"
+import uploadFileIcon from "../../static/images/uploadFile.png"
+import HitLeakModalLoader from "./Hit_Leak_Loader"
 
 const STEPS_ADOBE: TMinStep[] = [
   { title: "Reading Tasks", helper: "Complete", state: "done" },
@@ -315,7 +317,8 @@ const UploadFile: React.FC = () => {
   const eslId = "107011"
   const [file, setFile] = React.useState<File | null>(null)
   const inputRef = React.useRef<HTMLInputElement>(null)
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
+  const [openLoader, setOpenLoader] = React.useState(false);
 
   const workflow = Cookies.get("workflow")
   const workflowTypes = workflow ? JSON.parse(workflow) : {}
@@ -335,7 +338,8 @@ const UploadFile: React.FC = () => {
     if (isHitLeak) {
       // you can also store file info in sessionStorage if needed
       // sessionStorage.setItem("hitLeakUploadFileName", file.name)
-      navigate("/create-task-list")
+      // navigate("/create-task-list")
+      setOpenLoader(true);
       return
     }
 
@@ -361,44 +365,62 @@ const UploadFile: React.FC = () => {
             variant="outlined"
             sx={{
               borderRadius: 2,
+              borderColor: "#FFFFFF",
               p: 1.5,
               mb: 3,
+              boxShadow: "0 3px 6px #00000029",
             }}
           >
             <Stack
               direction="row"
               alignItems="center"
               spacing={1.5}
+              justifyContent="space-between"
               sx={{
-                border: "1px solid #E6E8EB",
                 borderRadius: 1.5,
                 pl: 1,
               }}
             >
               <Box
                 sx={{
-                  width: 48,
-                  height: 48,
-                  display: "grid",
-                  placeItems: "center",
+                  width: "75%",
+                  display: "flex",
+                  alignItems: "center",
                 }}
               >
-                <CloudUploadOutlinedIcon sx={{ color: "#2C7BE5" }} />
-              </Box>
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    display: "grid",
+                    placeItems: "center",
+                  }}
+                >
+                  <img
+                    src={uploadFileIcon}
+                    alt="Upload Icon"
+                    style={{ width: "100%", height: "100%" }}
+                  />
+                </Box>
 
-              <Box
-                onClick={openPicker}
-                sx={{
-                  flex: 1,
-                  py: 1.25,
-                  color: file ? "text.primary" : "text.secondary",
-                  cursor: "pointer",
-                  userSelect: "none",
-                }}
-              >
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {file ? file.name : "Upload the ESL Files"}
-                </Typography>
+                <Box
+                  onClick={openPicker}
+                  sx={{
+                    flex: 1,
+                    py: 1.25,
+                    color: file ? "text.primary" : "text.secondary",
+                    cursor: "pointer",
+                    userSelect: "none",
+                    border: "1px solid #cccccc",
+                    borderTopRightRadius: 5,
+                    borderBottomRightRadius: 5,
+                    p: 1.8,
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: 600, textDecoration: "underline" }}>
+                    {file ? file.name : "Upload the ESL Files"}
+                  </Typography>
+                </Box>
               </Box>
 
               <Button
@@ -426,9 +448,12 @@ const UploadFile: React.FC = () => {
               borderRadius: 1,
               p: 2,
               mt: 3,
-              maxWidth: "80%",
+              maxWidth: "60%",
+              width: "100%",
               backgroundColor: "#FFFFFF",
               borderColor: "#D9D9D9",
+              position: "fixed",
+              bottom: 20,
             }}
           >
             <Typography
@@ -461,6 +486,7 @@ const UploadFile: React.FC = () => {
             </Typography>
           </Paper>
         </Box>
+        <HitLeakModalLoader open={openLoader} />
       </MainLayout>
     )
   }
@@ -541,6 +567,7 @@ const UploadFile: React.FC = () => {
           <input ref={inputRef} type="file" onChange={handlePick} style={{ display: "none" }} />
         </Paper>
       </TMinScaffold>
+     
     </MainLayout>
   )
 }
