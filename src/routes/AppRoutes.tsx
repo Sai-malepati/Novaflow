@@ -7,22 +7,23 @@ import TMinReview from "../pages/TMinReview"
 import TMinDocs from "../pages/TMinDocs"
 import TMinModel from "../pages/TMinModel"
 import TMinReport from "../pages/TMinReport"
-import Register from "../pages/Register" 
+import Register from "../pages/Register"
 import UploadFile from "../pages/hit_leak/UploadFile"
-
+import CreateTaskList from "pages/hit_leak/CreateTaskList"
 
 const AppRoutes: React.FC = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<GetStarted />} />
       <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/register" element={<Register />} /> 
+      <Route path="/register" element={<Register />} />
       <Route path="/tmin" element={<Tmin />} />
       <Route path="/tmin-review" element={<TMinReview />} />
-      <Route path="/tmin-docs" element={<TMinDocs />} /> 
+      <Route path="/tmin-docs" element={<TMinDocs />} />
       <Route path="/tmin-model" element={<TMinModel />} />
       <Route path="/tmin-report" element={<TMinReport />} />
-       <Route path="/upload-file" element={<UploadFile />} />
+      <Route path="/upload-file" element={<UploadFile />} />
+      <Route path="/create-task-list" element={<CreateTaskList />} />
     </Routes>
   </BrowserRouter>
 )

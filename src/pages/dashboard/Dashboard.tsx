@@ -1,27 +1,15 @@
 import React, { memo, useEffect, useMemo, useState } from "react"
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Divider,
-  Link as MUILink,
-} from "@mui/material"
+import { Box, Typography, Card, CardContent, Divider, Link as MUILink } from "@mui/material"
 import DataTable from "../../components/DataTable"
 import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Legend, Bar } from "recharts"
 import MainLayout from "../../components/MainLayout"
 import { UserInfoHeader } from ".././user-info-header/UserInfoHeader"
-import {
-  ProbabilityIcon,
-  CorrosionIcon,
-  DeviationIcon,
-  InspectionIcon,
-  ToolIcon,
-} from "icons"
+import { ProbabilityIcon, CorrosionIcon, DeviationIcon, InspectionIcon, ToolIcon } from "icons"
 import { useGetItemsQuery } from "store/api"
 import { ColumnsType } from "types"
 import { useNavigate } from "react-router-dom"
 import SvgModalAnimator from "components/SvgModalAnimator"
+import Cookies from "js-cookie"
 
 const tileCardSx = {
   borderRadius: 2,
@@ -53,7 +41,8 @@ const linkSx = {
   "&:hover": { textDecorationColor: "#28A5DD", color: "#28A5DD" },
 }
 
-const COLUMNS: ColumnsType[] = [
+/** 🔹 T-MIN TABLE COLUMNS */
+const TMIN_COLUMNS: ColumnsType[] = [
   { id: "eslid", label: "Task ID", minWidth: 120, sortable: true },
   { id: "severityName", label: "Severity", sortable: true },
   { id: "assignedDate", label: "Assigned Date", sortable: true, minWidth: 150 },
@@ -61,12 +50,30 @@ const COLUMNS: ColumnsType[] = [
   { id: "statusName", label: "Status" },
 ]
 
-const CHART_DATA = [
+/** 🔹 HIT & LEAK TABLE COLUMNS (from Adobe screen) */
+const HIT_LEAK_COLUMNS: ColumnsType[] = [
+  { id: "siteName", label: "Site Name", minWidth: 140 },
+  { id: "severityName", label: "Severity", sortable: true },
+  { id: "assignedDate", label: "Assigned Date", minWidth: 150 },
+  { id: "assignee", label: "Assignees", minWidth: 150 },
+  { id: "statusName", label: "Status" },
+]
+
+/** 🔹 T-MIN CHART DATA (existing) */
+const CHART_DATA_TMIN = [
   { name: "Q1", assigned: 115, completed: 75 },
   { name: "Q2", assigned: 140, completed: 110 },
   { name: "Q3", assigned: 100, completed: 75 },
   { name: "Q4", assigned: 70, completed: 30 },
-];
+]
+
+/** 🔹 HIT & LEAK CHART DATA (per engineer, like Adobe) */
+const CHART_DATA_HIT_LEAK = [
+  { name: "Peter", assigned: 80, completed: 55 },
+  { name: "Robert", assigned: 65, completed: 40 },
+  { name: "Akash", assigned: 50, completed: 35 },
+  { name: "Eli", assigned: 70, completed: 45 },
+]
 
 const REPORT_LINKS = [
   "ESLs Pending MSP Reviewer",
@@ -76,13 +83,70 @@ const REPORT_LINKS = [
   "Rejected/ Closed ESLs",
 ]
 
-const TOOLS = [
+/** 🔹 T-MIN TOOLS */
+const TMIN_TOOLS = [
   { label: "T-Min Documents Library", icon: <ProbabilityIcon /> },
   { label: "Corrosion Rate Calculator", icon: <CorrosionIcon /> },
   { label: "Standard Deviation Calculator", icon: <DeviationIcon /> },
   { label: "Inspection Report Scrapper", icon: <InspectionIcon /> },
   { label: "Tool 5", icon: <ToolIcon /> },
   { label: "Tool 6", icon: <ToolIcon /> },
+]
+
+/** 🔹 HIT & LEAK TOOLS (based on Adobe) */
+const HIT_LEAK_TOOLS = [
+  { label: "Hit & Leak Documents Library", icon: <ProbabilityIcon /> },
+  { label: "Corrosion Rate Calculator", icon: <CorrosionIcon /> },
+  { label: "Standard Deviation Generator", icon: <DeviationIcon /> },
+  { label: "Inspection Report Scrapper", icon: <InspectionIcon /> },
+  { label: "Tool 5", icon: <ToolIcon /> },
+  { label: "Tool 6", icon: <ToolIcon /> },
+]
+
+/** 🔹 Static rows for Hit & Leak table (from Adobe screen) */
+const HIT_LEAK_ROWS = [
+  {
+    siteName: "ABCD-1234",
+    severityName: "Critical",
+    assignedDate: "30/07/2025",
+    assignee: "Yet to Assign",
+    statusName: "New Task",
+  },
+  {
+    siteName: "ABCD-1234",
+    severityName: "High",
+    assignedDate: "30/07/2025",
+    assignee: "Yet to Assign",
+    statusName: "New Task",
+  },
+  {
+    siteName: "ASDFG-3456",
+    severityName: "High",
+    assignedDate: "30/07/2025",
+    assignee: "Perter Parker",
+    statusName: "MSP Assessment",
+  },
+  {
+    siteName: "ZXCV-23456",
+    severityName: "Critical",
+    assignedDate: "30/07/2025",
+    assignee: "Eli",
+    statusName: "Under MSP Review",
+  },
+  {
+    siteName: "XCVBNM-67",
+    severityName: "High",
+    assignedDate: "30/07/2025",
+    assignee: "Robert Steven",
+    statusName: "TC Review",
+  },
+  {
+    siteName: "SDFG-5678",
+    severityName: "High",
+    assignedDate: "30/07/2025",
+    assignee: "Akash",
+    statusName: "Completed",
+  },
 ]
 
 export const ReportCard = memo(function ReportCard({
@@ -109,9 +173,16 @@ export const ReportCard = memo(function ReportCard({
   )
 })
 
-const ToolsGrid = memo(function ToolsGrid() {
+const ToolsGrid = memo(function ToolsGrid({
+  tools,
+}: {
+  tools: { label: string; icon: React.ReactNode }[]
+}) {
   return (
-    <Card elevation={0} sx={{ borderRadius: 2, background: "#fff5f5", border: "1px solid #f3d6d6" }}>
+    <Card
+      elevation={0}
+      sx={{ borderRadius: 2, background: "#fff5f5", border: "1px solid #f3d6d6" }}
+    >
       <CardContent sx={{ p: 2 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5, color: "#333" }}>
           Tools Connected
@@ -129,7 +200,7 @@ const ToolsGrid = memo(function ToolsGrid() {
             gap: 2,
           }}
         >
-          {TOOLS.map((t) => (
+          {tools.map((t) => (
             <Card key={t.label} elevation={1} sx={tileCardSx}>
               <CardContent sx={tileContentSx}>
                 <Box sx={{ color: "#000", border: "1px solid #6D6E71", borderRadius: 1, p: 1 }}>
@@ -156,25 +227,36 @@ const ToolsGrid = memo(function ToolsGrid() {
 })
 
 const Dashboard: React.FC = () => {
-  const { data = [], isLoading } = useGetItemsQuery("Esls")
   const navigate = useNavigate()
+
+  // 🔹 Workflow flags from cookie
+  const workflow = Cookies.get("workflow")
+  const workflowTypes = workflow ? JSON.parse(workflow) : {}
+  const isTmin = !!workflowTypes?.tmin
+  const isHitLeak = !!workflowTypes?.hitLeak
+
+  // T-Min ESL data (only meaningful in T-Min workflow)
+  const { data = [], isLoading } = useGetItemsQuery("Esls")
+
   const [openModal, setOpenModal] = useState(false)
   const [selectedEslId, setSelectedEslId] = useState<string | null>(null)
 
   const handleClick = (value: string) => {
+    // For now, row click navigation is only for T-Min ESLs
+    if (!isTmin) return
     setSelectedEslId(value)
     setOpenModal(true)
   }
 
   useEffect(() => {
-    if (openModal && selectedEslId) {
+    if (openModal && selectedEslId && isTmin) {
       const timer = setTimeout(() => {
         setOpenModal(false)
         navigate("/tmin-review", { state: { eslId: selectedEslId } })
       }, 5000)
       return () => clearTimeout(timer)
     }
-  }, [openModal, selectedEslId, navigate])
+  }, [openModal, selectedEslId, navigate, isTmin])
 
   const rows = useMemo(() => {
     if (!data) return []
@@ -206,13 +288,21 @@ const Dashboard: React.FC = () => {
     setPage(newPage)
   }
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const newSize = parseInt(event.target.value, 10)
     setRowsPerPage(newSize)
     setPage(0)
   }
 
-  const chartData = useMemo(() => CHART_DATA, [])
+  const chartData = useMemo(() => (isHitLeak ? CHART_DATA_HIT_LEAK : CHART_DATA_TMIN), [isHitLeak])
+
+  const tableTitleText = isHitLeak ? "Tasks List Status" : "Recent T-Min ESL Tasks"
+  const chartTitleText = isHitLeak ? "Nov 25 Tasks Status" : "2025 Tasks Status"
+  const toolsToShow = isHitLeak ? HIT_LEAK_TOOLS : TMIN_TOOLS
+  const tableColumns = isHitLeak ? HIT_LEAK_COLUMNS : TMIN_COLUMNS
+  const tableRows = isHitLeak ? HIT_LEAK_ROWS : data
 
   return (
     <MainLayout>
@@ -228,6 +318,7 @@ const Dashboard: React.FC = () => {
             alignItems: "stretch",
           }}
         >
+          {/* ===== LEFT: TABLE ===== */}
           <Box
             sx={{
               bgcolor: "#fff",
@@ -252,7 +343,7 @@ const Dashboard: React.FC = () => {
             >
               <DataTable
                 key={tableKey}
-                isLoading={isLoading}
+                isLoading={isHitLeak ? false : isLoading}
                 isPagination={true}
                 rawCount={13}
                 title={
@@ -264,8 +355,11 @@ const Dashboard: React.FC = () => {
                       width: "100%",
                     }}
                   >
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#5A5A5A" }}>
-                      Recent <strong>T-Min ESL Tasks</strong>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: 700, mb: 0.5, color: "#5A5A5A" }}
+                    >
+                      {tableTitleText}
                     </Typography>
                     <Typography
                       variant="subtitle1"
@@ -277,12 +371,13 @@ const Dashboard: React.FC = () => {
                         textAlign: "right",
                       }}
                     >
-                      Total completed tasks this month <strong style={{ color: "#4CAF50" }}>12</strong>
+                      Total completed tasks this month{" "}
+                      <strong style={{ color: "#4CAF50" }}>12</strong>
                     </Typography>
                   </Box>
                 }
-                columns={COLUMNS}
-                rows={data}
+                columns={tableColumns}
+                rows={tableRows}
                 onClick={handleClick}
               >
                 <Box sx={{ textAlign: "right", p: 2 }}>
@@ -291,6 +386,7 @@ const Dashboard: React.FC = () => {
                     onClick={(e) => {
                       e.preventDefault()
                       navigate("/tmin")
+                      // navigate(isHitLeak ? "/upload-file" : "/tmin")
                     }}
                     sx={{ fontSize: 14 }}
                   >
@@ -299,9 +395,9 @@ const Dashboard: React.FC = () => {
                 </Box>
               </DataTable>
             </Box>
-
           </Box>
 
+          {/* ===== RIGHT: CHART + REPORT CARDS ===== */}
           <Box
             sx={{
               bgcolor: "#fff",
@@ -327,7 +423,7 @@ const Dashboard: React.FC = () => {
                 color: "#d32f2f",
               }}
             >
-              2025 Tasks Status
+              {chartTitleText}
             </Typography>
 
             <Box
@@ -354,17 +450,15 @@ const Dashboard: React.FC = () => {
                     label={{
                       value: "Number of Assigned Tasks",
                       angle: -90,
-                      position: "insideLeft", // keep it inside
-                      offset: 20, // small fine-tune
+                      position: "insideLeft",
+                      offset: 20,
                       dy: 80,
                       style: { fontSize: 12, fill: "#555" },
                     }}
-                    tickMargin={15} // adds space between label and graph area
-                    width={80} // adds total Y-axis width (creates gap before bars)
+                    tickMargin={15}
+                    width={80}
                   />
-
                   <Tooltip />
-                  {/* Legend moved below the chart */}
                   <Legend
                     verticalAlign="bottom"
                     align="center"
@@ -377,14 +471,14 @@ const Dashboard: React.FC = () => {
                     name="Assigned Tasks"
                     fill="#1976d2"
                     radius={[4, 4, 0, 0]}
-                    barSize={25} // reduced bar width
+                    barSize={25}
                   />
                   <Bar
                     dataKey="completed"
                     name="Completed Tasks"
                     fill="#388e3c"
                     radius={[4, 4, 0, 0]}
-                    barSize={25} // reduced bar width
+                    barSize={25}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -402,11 +496,10 @@ const Dashboard: React.FC = () => {
               <ReportCard title="Monthly Report" links={REPORT_LINKS} />
             </Box>
           </Box>
-
         </Box>
 
-        <ToolsGrid />
-
+        {/* ===== TOOLS CONNECTED ===== */}
+        <ToolsGrid tools={toolsToShow} />
       </Box>
     </MainLayout>
   )

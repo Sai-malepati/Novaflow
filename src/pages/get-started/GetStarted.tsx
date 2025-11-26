@@ -4,11 +4,11 @@ import { Box, Typography, Button, Link } from "@mui/material"
 import Layout from "../../components/MainLayout"
 import landingImage from "../../static/images/getstarted_bg_img1.png"
 import Cookies from "js-cookie"
- 
+
 const GetStarted: React.FC = () => {
-useEffect(() =>{
-Cookies.set('workflow', JSON.stringify({tmin: true, prv: false, hitLeak: false}))
-  },[])
+  useEffect(() => {
+    Cookies.set("workflow", JSON.stringify({ tmin: false, prv: false, hitLeak: true }))
+  }, [])
   return (
     <Layout hideSidebar>
       <Box
@@ -68,14 +68,14 @@ Cookies.set('workflow', JSON.stringify({tmin: true, prv: false, hitLeak: false})
               Get Started
             </Button>
           </Box>
-      <Box sx={{ textAlign: "right", px: 12, py: 5 }}>
+          <Box sx={{ textAlign: "right", px: 12, py: 5 }}>
             <Typography variant="body2" sx={{ mb: 1 }}>
               New User?{" "}
               <Box component="span" fontWeight="bold">
                 Register here
               </Box>
             </Typography>
- 
+
             <Button
               component={RouterLink}
               to="register"
@@ -92,7 +92,7 @@ Cookies.set('workflow', JSON.stringify({tmin: true, prv: false, hitLeak: false})
             >
               Register
             </Button>
- 
+
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem" }}>
               Having trouble in logging in?{" "}
               <Link
@@ -114,5 +114,5 @@ Cookies.set('workflow', JSON.stringify({tmin: true, prv: false, hitLeak: false})
     </Layout>
   )
 }
- 
+
 export default GetStarted
